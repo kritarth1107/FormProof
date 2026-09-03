@@ -6,6 +6,11 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 description = "CLI tool for FormProof - compile schemas, prove instances, verify proofs"
+keywords = ["zkp", "groth16", "json-schema", "cli", "privacy"]
+categories = ["command-line-utilities", "cryptography"]
+readme = "../README.md"
+documentation = "https://github.com/kritarth1107/FormProof"
+homepage = "https://github.com/kritarth1107/FormProof"
 
 [[bin]]
 name = "formproof"
