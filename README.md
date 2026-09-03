@@ -102,7 +102,7 @@ formproof verify --schema refund.json --verifying-key keys/verifying_key.bin \
 
 ## v0 Scope (Honest Limitations)
 
-This is an early version with intentionally limited scope:
+This is an early version with intentionally limited scope. See [docs/SCHEMA_V0.md](docs/SCHEMA_V0.md) for the complete frozen schema specification.
 
 ### Supported
 - Objects with **≤8 properties**
@@ -153,11 +153,18 @@ formproof/           # Core library
 │   ├── prove.rs     # Groth16 proving
 │   ├── verify.rs    # Groth16 verification
 │   └── lib.rs       # Public API
+├── benches/
+│   └── proof_bench.rs  # Criterion benchmarks
+├── examples/
+│   └── mcp_tool_host.rs  # MCP integration example
 └── tests/
     └── golden.rs    # Golden proofs + rejection corpus
 
 formproof-cli/       # CLI binary
 └── src/main.rs
+
+docs/
+└── SCHEMA_V0.md     # Frozen schema specification
 ```
 
 ## Testing
@@ -177,6 +184,22 @@ Tests include:
 - 3 golden proofs that verify
 - Rejection corpus: wrong enum, out of range, missing required, invalid values
 - Edge cases: boundary values, optional fields, bytes32
+
+## Benchmarks
+
+Measured on the 3 golden schemas using criterion (release build):
+
+| Schema | Prove Time | Verify Time |
+|--------|------------|-------------|
+| Refund (2 props: amount, currency) | 2.35 ms | 1.13 ms |
+| User (3 props: age, country, name) | 2.28 ms | 1.15 ms |
+| Token (2 props: token_id, balance) | 5.82 ms | 1.14 ms |
+
+Run benchmarks yourself:
+
+```bash
+cargo bench --bench proof_bench
+```
 
 ## Performance Notes
 
