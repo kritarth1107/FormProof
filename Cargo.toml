@@ -1,0 +1,33 @@
+[workspace]
+members = ["formproof", "formproof-cli"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["FormProof Contributors"]
+repository = "https://github.com/kritarth1107/FormProof"
+
+[workspace.dependencies]
+ark-bls12-381 = "0.4"
+ark-bn254 = "0.4"
+ark-ec = "0.4"
+ark-ff = "0.4"
+ark-groth16 = "0.4"
+ark-r1cs-std = "0.4"
+ark-relations = "0.4"
+ark-serialize = "0.4"
+ark-snark = "0.4"
+ark-std = "0.4"
+clap = { version = "4.4", features = ["derive"] }
+hex = "0.4"
+rand = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
