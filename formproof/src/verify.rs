@@ -1,19 +1,31 @@
+//! Groth16 proof verification for FormProof.
+//!
+//! This module provides verification of proofs against compiled schemas.
+
 use crate::prove::{CompiledSchema, Proof, ProveError};
 use ark_bn254::Bn254;
 use ark_groth16::Groth16;
 use ark_snark::SNARK;
 use thiserror::Error;
 
+/// Errors that can occur during verification.
 #[derive(Error, Debug)]
 pub enum VerifyError {
+    /// The proof is cryptographically invalid.
     #[error("verification failed: proof is invalid")]
     InvalidProof,
+    /// An error occurred during verification.
     #[error("verification error: {0}")]
     VerificationError(String),
+    /// An error from the prove module.
     #[error("prove error: {0}")]
     ProveError(#[from] ProveError),
 }
 
+/// Verify a proof against a compiled schema.
+///
+/// Returns `Ok(true)` if the proof is valid, `Ok(false)` if invalid,
+/// or an error if verification fails.
 pub fn verify(compiled: &CompiledSchema, proof: &Proof) -> Result<bool, VerifyError> {
     let result = Groth16::<Bn254>::verify_with_processed_vk(
         &compiled.verifying_key,
@@ -25,6 +37,10 @@ pub fn verify(compiled: &CompiledSchema, proof: &Proof) -> Result<bool, VerifyEr
     Ok(result)
 }
 
+/// Verify a proof, returning an error if invalid.
+///
+/// This is a convenience wrapper around [`verify`] that returns
+/// `Err(VerifyError::InvalidProof)` instead of `Ok(false)`.
 pub fn verify_or_err(compiled: &CompiledSchema, proof: &Proof) -> Result<(), VerifyError> {
     if verify(compiled, proof)? {
         Ok(())

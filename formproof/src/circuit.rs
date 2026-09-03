@@ -1,3 +1,8 @@
+//! R1CS circuit generation for FormProof schemas.
+//!
+//! This module converts schemas and witnesses into arkworks R1CS constraints
+//! that can be used with Groth16 proving.
+
 use crate::schema::{FormProofSchema, PropertyType};
 use ark_ff::PrimeField;
 use ark_r1cs_std::{
@@ -13,53 +18,72 @@ use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisE
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+/// A single value in a witness.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WitnessValue {
+    /// 64-bit unsigned integer.
     U64(u64),
+    /// Enum variant (string value).
     Enum(String),
+    /// 32-byte binary data.
     Bytes32([u8; 32]),
+    /// UTF-8 string.
     String(String),
+    /// Property is absent from the witness.
     Absent,
 }
 
+/// Private witness data for proof generation.
+///
+/// A witness contains the actual values for each property in the schema.
+/// These values are private and never revealed to the verifier.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Witness {
+    /// Property name and value pairs.
     pub values: Vec<(String, WitnessValue)>,
 }
 
 impl Witness {
+    /// Create a new empty witness.
     pub fn new() -> Self {
         Witness { values: Vec::new() }
     }
 
+    /// Set a u64 integer value.
     pub fn set_u64(&mut self, name: &str, value: u64) {
         self.values
             .push((name.to_string(), WitnessValue::U64(value)));
     }
 
+    /// Set an enum value (string variant).
     pub fn set_enum(&mut self, name: &str, value: &str) {
         self.values
             .push((name.to_string(), WitnessValue::Enum(value.to_string())));
     }
 
+    /// Set a bytes32 value (32 bytes).
     pub fn set_bytes32(&mut self, name: &str, value: [u8; 32]) {
         self.values
             .push((name.to_string(), WitnessValue::Bytes32(value)));
     }
 
+    /// Set a string value.
     pub fn set_string(&mut self, name: &str, value: &str) {
         self.values
             .push((name.to_string(), WitnessValue::String(value.to_string())));
     }
 
+    /// Mark a property as absent.
     pub fn set_absent(&mut self, name: &str) {
         self.values.push((name.to_string(), WitnessValue::Absent));
     }
 
+    /// Get a value by property name.
     pub fn get(&self, name: &str) -> Option<&WitnessValue> {
         self.values.iter().find(|(n, _)| n == name).map(|(_, v)| v)
     }
 
+    /// Serialize the witness to bytes for commitment.
     pub fn to_bytes(&self, schema: &FormProofSchema) -> Vec<u8> {
         let mut bytes = Vec::new();
 
@@ -106,6 +130,10 @@ impl Witness {
         bytes
     }
 
+    /// Compute SHA-256 commitment of the witness.
+    ///
+    /// This is the public input to the circuit - it commits to the witness
+    /// values without revealing them.
     pub fn commitment(&self, schema: &FormProofSchema) -> [u8; 32] {
         let bytes = self.to_bytes(schema);
         let mut hasher = Sha256::new();
@@ -123,15 +151,23 @@ impl Default for Witness {
     }
 }
 
+/// The R1CS circuit for proving schema compliance.
+///
+/// This is primarily for internal use - most users should use
+/// [`CompiledSchema`](crate::CompiledSchema) and [`Proof`](crate::Proof) instead.
 #[derive(Clone)]
 pub struct FormProofCircuit<F: PrimeField> {
+    /// The schema being proven against.
     pub schema: FormProofSchema,
+    /// The private witness data (None for setup).
     pub witness: Option<Witness>,
+    /// The commitment to the witness (None for setup).
     pub commitment: Option<[u8; 32]>,
     _marker: std::marker::PhantomData<F>,
 }
 
 impl<F: PrimeField> FormProofCircuit<F> {
+    /// Create a new circuit for the given schema (without witness).
     pub fn new(schema: FormProofSchema) -> Self {
         FormProofCircuit {
             schema,
@@ -141,6 +177,7 @@ impl<F: PrimeField> FormProofCircuit<F> {
         }
     }
 
+    /// Add a witness to the circuit for proving.
     pub fn with_witness(mut self, witness: Witness) -> Self {
         let commitment = witness.commitment(&self.schema);
         self.witness = Some(witness);
