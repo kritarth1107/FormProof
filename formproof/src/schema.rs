@@ -1,70 +1,115 @@
+//! JSON Schema subset parser for FormProof.
+//!
+//! This module parses a frozen subset of JSON Schema into an internal representation
+//! that can be compiled to a Groth16 circuit.
+
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use thiserror::Error;
 
+/// Maximum number of properties allowed in a schema object.
 pub const MAX_PROPERTIES: usize = 8;
+/// Maximum number of variants allowed in an enum.
 pub const MAX_ENUM_VARIANTS: usize = 8;
+/// Maximum string length allowed (in bytes).
 pub const MAX_STRING_LENGTH: usize = 64;
 
+/// Errors that can occur when parsing or validating a schema.
 #[derive(Error, Debug)]
 pub enum SchemaError {
+    /// Schema type is not "object" or missing required structure.
     #[error("schema must be an object type")]
     NotAnObject,
+    /// Too many properties defined (max 8).
     #[error("too many properties: {0} (max {MAX_PROPERTIES})")]
     TooManyProperties(usize),
+    /// Enum has too many variants (max 8).
     #[error("too many enum variants for '{0}': {1} (max {MAX_ENUM_VARIANTS})")]
     TooManyEnumVariants(String, usize),
+    /// String maxLength exceeds limit (max 64).
     #[error("string maxLength too large for '{0}': {1} (max {MAX_STRING_LENGTH})")]
     StringTooLong(String, usize),
+    /// Property has an unsupported type.
     #[error("unsupported type for property '{0}': {1}")]
     UnsupportedType(String, String),
+    /// Required property is not defined in properties.
     #[error("required property '{0}' not defined in properties")]
     RequiredNotDefined(String),
+    /// JSON parsing error.
     #[error("invalid JSON: {0}")]
     InvalidJson(#[from] serde_json::Error),
+    /// Property is missing a type field.
     #[error("missing 'type' field for property '{0}'")]
     MissingType(String),
+    /// Enum variants must all be strings.
     #[error("enum variants must be strings for property '{0}'")]
     EnumNotStrings(String),
+    /// Bytes32 value has wrong length.
     #[error("bytes32 must have exactly 32 bytes, got {0}")]
     InvalidBytes32Length(usize),
+    /// Minimum value is greater than maximum.
     #[error("minimum must be <= maximum for property '{0}'")]
     MinGreaterThanMax(String),
 }
 
+/// The type of a schema property.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum PropertyType {
+    /// 64-bit unsigned integer with optional bounds.
     U64 {
+        /// Minimum allowed value (inclusive).
         minimum: Option<u64>,
+        /// Maximum allowed value (inclusive).
         maximum: Option<u64>,
     },
+    /// String enumeration with fixed variants.
     Enum {
+        /// The allowed string values.
         variants: Vec<String>,
     },
+    /// Fixed 32-byte binary data.
     Bytes32,
+    /// Variable-length string with maximum length.
     String {
+        /// Maximum length in bytes.
         max_length: usize,
     },
 }
 
+/// A single property in a schema.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Property {
+    /// Property name (key in the JSON object).
     pub name: String,
+    /// The type and constraints for this property.
     pub prop_type: PropertyType,
+    /// Whether this property must be present in the witness.
     pub required: bool,
 }
 
+/// A parsed FormProof schema ready for circuit compilation.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct FormProofSchema {
+    /// The properties in this schema, sorted alphabetically by name.
     pub properties: Vec<Property>,
 }
 
 impl FormProofSchema {
+    /// Parse a schema from a JSON string.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the JSON is invalid or the schema violates v0 constraints.
     pub fn from_json(json: &str) -> Result<Self, SchemaError> {
         let value: serde_json::Value = serde_json::from_str(json)?;
         Self::from_value(&value)
     }
 
+    /// Parse a schema from a serde_json Value.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the schema violates v0 constraints.
     pub fn from_value(value: &serde_json::Value) -> Result<Self, SchemaError> {
         let obj = value.as_object().ok_or(SchemaError::NotAnObject)?;
 
@@ -192,6 +237,7 @@ impl FormProofSchema {
         }
     }
 
+    /// Serialize the schema back to JSON Schema format.
     pub fn to_json(&self) -> String {
         let mut props = BTreeMap::new();
 

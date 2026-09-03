@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 //! FormProof: Zero-knowledge proofs for JSON Schema validation
 //!
 //! This library allows you to prove that a JSON payload satisfies schema constraints

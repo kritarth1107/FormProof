@@ -1,3 +1,8 @@
+//! Groth16 proof generation for FormProof.
+//!
+//! This module provides schema compilation and proof generation using
+//! the Groth16 proving system with the BN254 curve.
+
 use crate::circuit::{FormProofCircuit, Witness};
 use crate::schema::FormProofSchema;
 use ark_bn254::{Bn254, Fr};
@@ -7,24 +12,43 @@ use ark_snark::SNARK;
 use ark_std::rand::rngs::OsRng;
 use thiserror::Error;
 
+/// Errors that can occur during proving or compilation.
 #[derive(Error, Debug)]
 pub enum ProveError {
+    /// Error serializing or deserializing keys/proofs.
     #[error("serialization error: {0}")]
     Serialization(String),
+    /// Error during proof generation.
     #[error("proving error: {0}")]
     Proving(String),
+    /// Error during circuit setup.
     #[error("setup error: {0}")]
     Setup(String),
 }
 
+/// A compiled schema with proving and verifying keys.
+///
+/// This is created by compiling a schema once, then used to create
+/// multiple proofs and verify them.
 #[derive(Clone)]
 pub struct CompiledSchema {
+    /// The original schema.
     pub schema: FormProofSchema,
+    /// The Groth16 proving key.
     pub proving_key: ProvingKey<Bn254>,
+    /// The Groth16 verifying key (preprocessed).
     pub verifying_key: PreparedVerifyingKey<Bn254>,
 }
 
 impl CompiledSchema {
+    /// Compile a schema into proving and verifying keys.
+    ///
+    /// This performs Groth16 circuit-specific setup, which is computationally
+    /// expensive. The result should be cached and reused.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if circuit setup fails.
     pub fn compile(schema: FormProofSchema) -> Result<Self, ProveError> {
         let circuit = FormProofCircuit::<Fr>::new(schema.clone());
 
@@ -42,6 +66,7 @@ impl CompiledSchema {
         })
     }
 
+    /// Serialize the proving key to bytes.
     pub fn serialize_proving_key(&self) -> Result<Vec<u8>, ProveError> {
         let mut bytes = Vec::new();
         self.proving_key
@@ -50,6 +75,7 @@ impl CompiledSchema {
         Ok(bytes)
     }
 
+    /// Serialize the verifying key to bytes.
     pub fn serialize_verifying_key(&self) -> Result<Vec<u8>, ProveError> {
         let mut bytes = Vec::new();
         self.verifying_key
@@ -58,6 +84,11 @@ impl CompiledSchema {
         Ok(bytes)
     }
 
+    /// Deserialize keys from bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if deserialization fails.
     pub fn deserialize_keys(
         schema: FormProofSchema,
         pk_bytes: &[u8],
@@ -76,13 +107,22 @@ impl CompiledSchema {
     }
 }
 
+/// A zero-knowledge proof that a witness satisfies a schema.
 pub struct Proof {
+    /// The Groth16 proof.
     pub proof: ark_groth16::Proof<Bn254>,
+    /// Public inputs (the commitment bytes as field elements).
     pub public_inputs: Vec<Fr>,
+    /// The commitment to the witness data.
     pub commitment: [u8; 32],
 }
 
 impl Proof {
+    /// Create a proof that the witness satisfies the compiled schema.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if proof generation fails.
     pub fn create(compiled: &CompiledSchema, witness: &Witness) -> Result<Self, ProveError> {
         let commitment = witness.commitment(&compiled.schema);
 
@@ -102,6 +142,7 @@ impl Proof {
         })
     }
 
+    /// Serialize the proof to bytes.
     pub fn serialize(&self) -> Result<Vec<u8>, ProveError> {
         let mut bytes = Vec::new();
         self.proof
@@ -110,6 +151,10 @@ impl Proof {
         Ok(bytes)
     }
 
+    /// Deserialize a proof from bytes.
+    ///
+    /// The commitment must be provided separately as it is not included
+    /// in the serialized proof.
     pub fn deserialize(bytes: &[u8], commitment: [u8; 32]) -> Result<Self, ProveError> {
         let proof = ark_groth16::Proof::<Bn254>::deserialize_compressed(bytes)
             .map_err(|e| ProveError::Serialization(e.to_string()))?;
