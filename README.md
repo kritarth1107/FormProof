@@ -102,7 +102,10 @@ formproof verify --schema refund.json --verifying-key keys/verifying_key.bin \
 
 ## v0 Scope (Honest Limitations)
 
-This is an early version with intentionally limited scope. See [docs/SCHEMA_V0.md](docs/SCHEMA_V0.md) for the complete frozen schema specification.
+This is an early version with intentionally limited scope.
+
+- [docs/SCHEMA_V0.md](docs/SCHEMA_V0.md) — Complete frozen schema specification
+- [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) — Security model and trust assumptions
 
 ### Supported
 - Objects with **≤8 properties**
@@ -164,7 +167,8 @@ formproof-cli/       # CLI binary
 └── src/main.rs
 
 docs/
-└── SCHEMA_V0.md     # Frozen schema specification
+├── SCHEMA_V0.md     # Frozen schema specification
+└── THREAT_MODEL.md  # Security model and trust assumptions
 ```
 
 ## Testing
@@ -212,9 +216,22 @@ cargo bench --bench proof_bench
 
 MIT License - see [LICENSE](LICENSE)
 
+## CI
+
+GitHub Actions runs on every PR:
+
+- **Format**: `cargo fmt --check`
+- **Clippy**: `cargo clippy --all-targets -- -D warnings`
+- **Test**: `cargo test`
+- **Docs**: `cargo doc --no-deps -p formproof` with `-D warnings`
+- **Build**: Release build and CLI check
+
 ## Contributing
 
-Contributions welcome. Please:
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+Quick checklist:
 1. Keep changes within v0 scope
 2. Add tests for new functionality
 3. Run `cargo fmt` and `cargo clippy` before submitting
+4. No AI co-author trailers in commits
