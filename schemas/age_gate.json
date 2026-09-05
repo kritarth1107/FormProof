@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "properties": {
+    "age": {
+      "type": "integer",
+      "minimum": 18,
+      "maximum": 120
+    },
+    "region": {
+      "enum": ["US", "EU", "UK", "IN"]
+    }
+  },
+  "required": ["age", "region"]
+}
