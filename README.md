@@ -106,6 +106,7 @@ This is an early version with intentionally limited scope.
 
 - [docs/SCHEMA_V0.md](docs/SCHEMA_V0.md) — Complete frozen schema specification
 - [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) — Security model and trust assumptions
+- [docs/WASM.md](docs/WASM.md) — WebAssembly verification path and caveats
 
 ### Supported
 - Objects with **≤8 properties**
@@ -159,7 +160,8 @@ formproof/           # Core library
 ├── benches/
 │   └── proof_bench.rs  # Criterion benchmarks
 ├── examples/
-│   └── mcp_tool_host.rs  # MCP integration example
+│   ├── mcp_tool_host.rs  # MCP integration example
+│   └── verify_only.rs    # Host-side verify-only workflow
 └── tests/
     └── golden.rs    # Golden proofs + rejection corpus
 
@@ -168,7 +170,8 @@ formproof-cli/       # CLI binary
 
 docs/
 ├── SCHEMA_V0.md     # Frozen schema specification
-└── THREAT_MODEL.md  # Security model and trust assumptions
+├── THREAT_MODEL.md  # Security model and trust assumptions
+└── WASM.md          # WebAssembly verification notes
 ```
 
 ## Testing
