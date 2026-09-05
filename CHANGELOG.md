@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fuzz-like integration tests for schema parser edge cases
 - `docs/FUZZING.md` documenting property testing and fuzzing approach
 - `docs/WASM.md` documenting WebAssembly verification path and current limitations
+- `docs/HOST_INTEGRATION.md` for MCP/tool host verify-only integration
 - `examples/verify_only.rs` demonstrating host-side verify-only workflow
+- `schemas/` fixtures: `refund.json`, `age_gate.json`, `access_country.json`
+- `SECURITY.md` with supported versions and private disclosure contact
 
 ### Changed
 
