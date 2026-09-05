@@ -34,6 +34,9 @@ num-bigint = "0.4"
 tempfile = "3"
 hex = "0.4"
 criterion.workspace = true
+proptest.workspace = true
+zeroize.workspace = true
+getrandom.workspace = true
 
 [[bench]]
 name = "proof_bench"
