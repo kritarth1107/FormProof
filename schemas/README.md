@@ -10,6 +10,7 @@ These files match the subset documented in [docs/SCHEMA_V0.md](../docs/SCHEMA_V0
 | [`age_gate.json`](age_gate.json) | Age ≥ 18 with region | `age` (18–120), `region` enum |
 | [`access_country.json`](access_country.json) | Country allowlist + tier | `country` enum, `tier` enum, optional `token_id` bytes32 |
 | [`spend_cap.json`](spend_cap.json) | Spend limit ≤ $100, multi-currency | `cents` (0–10000), `currency` enum (USD/EUR/GBP/INR) |
+| [`session_ttl.json`](session_ttl.json) | Session TTL with tier | `ttl_seconds` (1–86400), `tier` enum (free/pro/enterprise) |
 
 ## Quick CLI Usage
 
