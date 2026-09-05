@@ -78,7 +78,7 @@ formproof verify --schema schemas/refund.json --verifying-key keys/verifying_key
     --proof proof.bin --commitment <hex-commitment>
 ```
 
-Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`).
+Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`).
 
 ### Example Files
 
@@ -110,6 +110,7 @@ This is an early version with intentionally limited scope.
 - [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) — Security model and trust assumptions
 - [docs/HOST_INTEGRATION.md](docs/HOST_INTEGRATION.md) — MCP/tool host verify-only integration
 - [docs/WASM.md](docs/WASM.md) — WebAssembly verification path and caveats
+- [docs/RELEASE.md](docs/RELEASE.md) — Release preparation checklist
 - [SECURITY.md](SECURITY.md) — Supported versions and vulnerability reporting
 
 ### Supported
@@ -175,13 +176,15 @@ formproof-cli/       # CLI binary
 schemas/             # Reusable v0 policy fixtures
 ├── refund.json
 ├── age_gate.json
-└── access_country.json
+├── access_country.json
+└── spend_cap.json
 
 docs/
 ├── SCHEMA_V0.md          # Frozen schema specification
 ├── THREAT_MODEL.md       # Security model and trust assumptions
 ├── HOST_INTEGRATION.md   # Host verify-only integration
-└── WASM.md               # WebAssembly verification notes
+├── WASM.md               # WebAssembly verification notes
+└── RELEASE.md            # Release preparation checklist
 ```
 
 ## Testing
