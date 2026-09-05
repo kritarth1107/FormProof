@@ -14,8 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/FUZZING.md` documenting property testing and fuzzing approach
 - `docs/WASM.md` documenting WebAssembly verification path and current limitations
 - `docs/HOST_INTEGRATION.md` for MCP/tool host verify-only integration
+- `docs/RELEASE.md` with release preparation checklist
 - `examples/verify_only.rs` demonstrating host-side verify-only workflow
-- `schemas/` fixtures: `refund.json`, `age_gate.json`, `access_country.json`
+- `schemas/` fixtures: `refund.json`, `age_gate.json`, `access_country.json`, `spend_cap.json`
+- `formproof/tests/schema_fixtures.rs` validating all schema fixtures parse and compile
+- CI job to validate `schemas/*.json` syntax with jq
 - `SECURITY.md` with supported versions and private disclosure contact
 
 ### Changed
