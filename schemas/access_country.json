@@ -1,0 +1,16 @@
+{
+  "type": "object",
+  "properties": {
+    "country": {
+      "enum": ["US", "CA", "GB", "DE", "FR", "IN", "JP", "AU"]
+    },
+    "tier": {
+      "enum": ["free", "pro", "enterprise"]
+    },
+    "token_id": {
+      "type": "string",
+      "format": "bytes32"
+    }
+  },
+  "required": ["country", "tier"]
+}
