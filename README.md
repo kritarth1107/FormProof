@@ -180,6 +180,12 @@ cargo test
 # Run golden proof tests specifically
 cargo test --test golden
 
+# Run property tests
+cargo test --test proptest_schema
+
+# Run fuzz-like tests
+cargo test --test fuzz_schema
+
 # Run with output
 cargo test -- --nocapture
 ```
@@ -188,6 +194,10 @@ Tests include:
 - 3 golden proofs that verify
 - Rejection corpus: wrong enum, out of range, missing required, invalid values
 - Edge cases: boundary values, optional fields, bytes32
+- Property tests: random valid/invalid schemas, witness/circuit satisfaction
+- Fuzz tests: arbitrary JSON input, malformed schemas, edge cases
+
+See [docs/FUZZING.md](docs/FUZZING.md) for property testing and fuzzing details.
 
 ## Benchmarks
 
