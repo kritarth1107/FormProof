@@ -78,7 +78,7 @@ formproof verify --schema schemas/refund.json --verifying-key keys/verifying_key
     --proof proof.bin --commitment <hex-commitment>
 ```
 
-Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`).
+Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`).
 
 ### Example Files
 
@@ -166,7 +166,8 @@ formproof/           # Core library
 │   └── proof_bench.rs  # Criterion benchmarks
 ├── examples/
 │   ├── mcp_tool_host.rs  # MCP integration example
-│   └── verify_only.rs    # Host-side verify-only workflow
+│   ├── verify_only.rs    # Host-side verify-only workflow
+│   └── spend_cap_demo.rs # Spend cap policy demonstration
 └── tests/
     └── golden.rs    # Golden proofs + rejection corpus
 
@@ -177,7 +178,8 @@ schemas/             # Reusable v0 policy fixtures
 ├── refund.json
 ├── age_gate.json
 ├── access_country.json
-└── spend_cap.json
+├── spend_cap.json
+└── session_ttl.json
 
 docs/
 ├── SCHEMA_V0.md          # Frozen schema specification

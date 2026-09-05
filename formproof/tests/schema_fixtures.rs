@@ -5,11 +5,11 @@ use std::fs;
 use std::path::Path;
 
 fn schema_dir() -> &'static Path {
-    Path::new(env!("CARGO_MANIFEST_DIR"))
+    let path = Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
         .unwrap()
-        .join("schemas")
-        .leak()
+        .join("schemas");
+    Box::leak(path.into_boxed_path())
 }
 
 #[test]
@@ -28,7 +28,8 @@ fn all_schema_fixtures_parse_and_compile() {
         let entry = entry.expect("failed to read directory entry");
         let path = entry.path();
 
-        if path.extension().is_none_or(|ext| ext != "json") {
+        let ext = path.extension();
+        if ext.is_none() || ext.unwrap() != "json" {
             continue;
         }
 
