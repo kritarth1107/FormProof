@@ -64,19 +64,21 @@ cargo build --release
 
 ```bash
 # Show schema constraints
-formproof info --schema refund.json
+formproof info --schema schemas/refund.json
 
 # Compile schema to proving/verifying keys
-formproof compile --schema refund.json --output ./keys
+formproof compile --schema schemas/refund.json --output ./keys
 
 # Generate proof from private witness
-formproof prove --schema refund.json --proving-key keys/proving_key.bin \
+formproof prove --schema schemas/refund.json --proving-key keys/proving_key.bin \
     --witness witness.json --output proof.bin
 
 # Verify proof (only needs commitment, never sees actual values)
-formproof verify --schema refund.json --verifying-key keys/verifying_key.bin \
+formproof verify --schema schemas/refund.json --verifying-key keys/verifying_key.bin \
     --proof proof.bin --commitment <hex-commitment>
 ```
+
+Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`).
 
 ### Example Files
 
@@ -106,7 +108,9 @@ This is an early version with intentionally limited scope.
 
 - [docs/SCHEMA_V0.md](docs/SCHEMA_V0.md) — Complete frozen schema specification
 - [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) — Security model and trust assumptions
+- [docs/HOST_INTEGRATION.md](docs/HOST_INTEGRATION.md) — MCP/tool host verify-only integration
 - [docs/WASM.md](docs/WASM.md) — WebAssembly verification path and caveats
+- [SECURITY.md](SECURITY.md) — Supported versions and vulnerability reporting
 
 ### Supported
 - Objects with **≤8 properties**
@@ -168,10 +172,16 @@ formproof/           # Core library
 formproof-cli/       # CLI binary
 └── src/main.rs
 
+schemas/             # Reusable v0 policy fixtures
+├── refund.json
+├── age_gate.json
+└── access_country.json
+
 docs/
-├── SCHEMA_V0.md     # Frozen schema specification
-├── THREAT_MODEL.md  # Security model and trust assumptions
-└── WASM.md          # WebAssembly verification notes
+├── SCHEMA_V0.md          # Frozen schema specification
+├── THREAT_MODEL.md       # Security model and trust assumptions
+├── HOST_INTEGRATION.md   # Host verify-only integration
+└── WASM.md               # WebAssembly verification notes
 ```
 
 ## Testing
