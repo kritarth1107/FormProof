@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "requests_per_window": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10000
+    },
+    "window_secs": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 86400
+    },
+    "tier": {
+      "enum": ["free", "basic", "pro", "enterprise"]
+    }
+  },
+  "required": ["requests_per_window", "window_secs", "tier"]
+}
