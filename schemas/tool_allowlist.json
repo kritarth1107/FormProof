@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "tool_name": {
+      "enum": ["read", "write", "execute", "list", "search", "delete"]
+    },
+    "max_args": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 64
+    },
+    "scope": {
+      "enum": ["local", "remote", "any"]
+    }
+  },
+  "required": ["tool_name", "scope"]
+}
