@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `schemas/model_route.json`: MCP model-routing policy with model_id enum (8 models), max_tokens (1–128000), priority, optional temperature_class
+- `formproof/tests/model_route_bounds.rs` for model routing boundary validation
+- `formproof/examples/quota_budget_demo.rs` demonstrating quota/budget prove/verify workflow
+- `formproof/examples/model_route_demo.rs` demonstrating model routing prove/verify workflow
+- Criterion benches for `quota_budget` and `model_route` prove/verify
+- CI: `schema-parse` job verifying all schemas compile (not just valid JSON)
+- CI: `security-audit` job using rustsec/audit-check for dependency vulnerabilities
+- `docs/RELEASE.md`: detailed v0.1.0 pre-release checklist
+
+### Previously Added
+
 - `schemas/quota_budget.json`: MCP quota/budget policy with budget_units, period, optional soft_cap
 - `formproof/tests/access_country_bounds.rs` for country/tier boundary validation
 - `formproof/tests/quota_budget_bounds.rs` for budget units and period validation
