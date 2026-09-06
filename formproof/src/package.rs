@@ -10,7 +10,7 @@
 
 use crate::prove::{CompiledSchema, Proof, ProveError};
 use crate::schema::FormProofSchema;
-use crate::verify::{verify, VerifyError};
+use crate::verify::{verify_or_err, VerifyError};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use thiserror::Error;
@@ -179,7 +179,7 @@ impl ProofPackage {
         let proof_bytes = hex::decode(&self.proof_hex)?;
         let proof = Proof::deserialize(&proof_bytes, commitment)?;
 
-        verify(compiled, &proof)?;
+        verify_or_err(compiled, &proof)?;
         Ok(())
     }
 }
