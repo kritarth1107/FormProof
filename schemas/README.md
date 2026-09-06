@@ -13,6 +13,7 @@ These files match the subset documented in [docs/SCHEMA_V0.md](../docs/SCHEMA_V0
 | [`session_ttl.json`](session_ttl.json) | Session TTL with tier | `ttl_seconds` (1–86400), `tier` enum (free/pro/enterprise) |
 | [`rate_limit.json`](rate_limit.json) | MCP rate-limit policy | `requests_per_window` (1–10000), `window_secs` (1–86400), `tier` enum |
 | [`tool_allowlist.json`](tool_allowlist.json) | MCP tool access policy | `tool_name` enum, optional `max_args` (0–64), `scope` enum |
+| [`quota_budget.json`](quota_budget.json) | MCP quota/budget policy | `budget_units` (1–1000000), `period` enum, optional `soft_cap` (0–1000000) |
 
 ## Quick CLI Usage
 
@@ -56,6 +57,18 @@ formproof compile --schema schemas/refund.json --output ./keys
 { "tool_name": "read", "scope": "local" }
 ```
 
+**quota_budget** (valid, optional soft_cap omitted):
+
+```json
+{ "budget_units": 5000, "period": "daily" }
+```
+
+**quota_budget** (valid, with soft_cap):
+
+```json
+{ "budget_units": 100000, "period": "monthly", "soft_cap": 80000 }
+```
+
 Invalid examples (should fail to prove / fail verify):
 
 - refund with `"amount": 99`
@@ -63,6 +76,8 @@ Invalid examples (should fail to prove / fail verify):
 - access_country with `"country": "XX"` (not in enum)
 - rate_limit with `"requests_per_window": 0` (below minimum)
 - tool_allowlist with `"tool_name": "admin"` (not in enum)
+- quota_budget with `"budget_units": 0` (below minimum)
+- quota_budget with `"period": "yearly"` (not in enum)
 
 ## Notes
 
