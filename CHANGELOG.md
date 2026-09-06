@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `schemas/quota_budget.json`: MCP quota/budget policy with budget_units, period, optional soft_cap
+- `formproof/tests/access_country_bounds.rs` for country/tier boundary validation
+- `formproof/tests/quota_budget_bounds.rs` for budget units and period validation
+- `formproof/examples/session_ttl_demo.rs` demonstrating session TTL prove/verify workflow
+- Criterion benches for `age_gate` and `tool_allowlist` prove/verify
 - `formproof/tests/session_ttl_bounds.rs` for session TTL boundary validation
 - `formproof/tests/age_gate_bounds.rs` for age gate boundary validation
 - Criterion benches for `rate_limit` and `session_ttl` prove/verify

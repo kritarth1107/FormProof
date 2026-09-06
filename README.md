@@ -96,7 +96,7 @@ formproof package-verify --schema schemas/refund.json \
 
 See [docs/PROOF_PACKAGE.md](docs/PROOF_PACKAGE.md) for format details.
 
-Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`, `rate_limit`, `tool_allowlist`).
+Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`, `rate_limit`, `tool_allowlist`, `quota_budget`).
 
 ### Example Files
 
@@ -187,6 +187,7 @@ formproof/           # Core library
 │   ├── mcp_tool_host.rs     # MCP integration example
 │   ├── verify_only.rs       # Host-side verify-only workflow
 │   ├── spend_cap_demo.rs    # Spend cap policy demonstration
+│   ├── session_ttl_demo.rs  # Session TTL policy demonstration
 │   └── proof_package_demo.rs # Proof package workflow
 └── tests/
     └── golden.rs    # Golden proofs + rejection corpus
@@ -201,7 +202,8 @@ schemas/             # Reusable v0 policy fixtures
 ├── spend_cap.json
 ├── session_ttl.json
 ├── rate_limit.json      # MCP rate-limit policy
-└── tool_allowlist.json  # MCP tool access policy
+├── tool_allowlist.json  # MCP tool access policy
+└── quota_budget.json    # MCP quota/budget policy
 
 docs/
 ├── SCHEMA_V0.md          # Frozen schema specification

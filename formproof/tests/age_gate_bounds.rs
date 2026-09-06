@@ -76,12 +76,9 @@ fn rejects_underage() {
         Proof::create(&compiled, &witness)
     }));
 
-    match result {
-        Ok(Ok(proof)) => {
-            let verified = verify(&compiled, &proof).unwrap_or(false);
-            assert!(!verified, "Expected age=17 to be rejected");
-        }
-        Ok(Err(_)) | Err(_) => {}
+    if let Ok(Ok(proof)) = result {
+        let verified = verify(&compiled, &proof).unwrap_or(false);
+        assert!(!verified, "Expected age=17 to be rejected");
     }
 }
 
@@ -100,11 +97,8 @@ fn rejects_age_over_maximum() {
         Proof::create(&compiled, &witness)
     }));
 
-    match result {
-        Ok(Ok(proof)) => {
-            let verified = verify(&compiled, &proof).unwrap_or(false);
-            assert!(!verified, "Expected age=121 to be rejected");
-        }
-        Ok(Err(_)) | Err(_) => {}
+    if let Ok(Ok(proof)) = result {
+        let verified = verify(&compiled, &proof).unwrap_or(false);
+        assert!(!verified, "Expected age=121 to be rejected");
     }
 }

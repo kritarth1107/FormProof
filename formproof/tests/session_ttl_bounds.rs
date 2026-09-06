@@ -76,12 +76,9 @@ fn rejects_zero_ttl() {
         Proof::create(&compiled, &witness)
     }));
 
-    match result {
-        Ok(Ok(proof)) => {
-            let verified = verify(&compiled, &proof).unwrap_or(false);
-            assert!(!verified, "Expected ttl_seconds=0 to be rejected");
-        }
-        Ok(Err(_)) | Err(_) => {}
+    if let Ok(Ok(proof)) = result {
+        let verified = verify(&compiled, &proof).unwrap_or(false);
+        assert!(!verified, "Expected ttl_seconds=0 to be rejected");
     }
 }
 
@@ -100,11 +97,8 @@ fn rejects_ttl_over_maximum() {
         Proof::create(&compiled, &witness)
     }));
 
-    match result {
-        Ok(Ok(proof)) => {
-            let verified = verify(&compiled, &proof).unwrap_or(false);
-            assert!(!verified, "Expected ttl_seconds=86401 to be rejected");
-        }
-        Ok(Err(_)) | Err(_) => {}
+    if let Ok(Ok(proof)) = result {
+        let verified = verify(&compiled, &proof).unwrap_or(false);
+        assert!(!verified, "Expected ttl_seconds=86401 to be rejected");
     }
 }
