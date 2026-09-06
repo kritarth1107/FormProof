@@ -14,6 +14,7 @@ These files match the subset documented in [docs/SCHEMA_V0.md](../docs/SCHEMA_V0
 | [`rate_limit.json`](rate_limit.json) | MCP rate-limit policy | `requests_per_window` (1–10000), `window_secs` (1–86400), `tier` enum |
 | [`tool_allowlist.json`](tool_allowlist.json) | MCP tool access policy | `tool_name` enum, optional `max_args` (0–64), `scope` enum |
 | [`quota_budget.json`](quota_budget.json) | MCP quota/budget policy | `budget_units` (1–1000000), `period` enum, optional `soft_cap` (0–1000000) |
+| [`model_route.json`](model_route.json) | MCP model-routing policy | `model_id` enum, `max_tokens` (1–128000), `priority` enum, optional `temperature_class` enum |
 
 ## Quick CLI Usage
 
@@ -69,6 +70,18 @@ formproof compile --schema schemas/refund.json --output ./keys
 { "budget_units": 100000, "period": "monthly", "soft_cap": 80000 }
 ```
 
+**model_route** (valid, required fields only):
+
+```json
+{ "model_id": "claude-3-sonnet", "max_tokens": 4096, "priority": "normal" }
+```
+
+**model_route** (valid, with optional temperature_class):
+
+```json
+{ "model_id": "gpt-4o", "max_tokens": 8192, "priority": "high", "temperature_class": "balanced" }
+```
+
 Invalid examples (should fail to prove / fail verify):
 
 - refund with `"amount": 99`
@@ -78,6 +91,9 @@ Invalid examples (should fail to prove / fail verify):
 - tool_allowlist with `"tool_name": "admin"` (not in enum)
 - quota_budget with `"budget_units": 0` (below minimum)
 - quota_budget with `"period": "yearly"` (not in enum)
+- model_route with `"model_id": "unknown-model"` (not in enum)
+- model_route with `"max_tokens": 0` (below minimum)
+- model_route with `"max_tokens": 200000` (above maximum)
 
 ## Notes
 
