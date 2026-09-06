@@ -2,7 +2,47 @@
 
 Steps for preparing a new FormProof release.
 
-## Pre-release
+## v0.1.0 Pre-release Checklist
+
+Outstanding items before tagging v0.1.0:
+
+### Schemas
+- [x] Core policy schemas: refund, age_gate, access_country, spend_cap
+- [x] MCP schemas: session_ttl, rate_limit, tool_allowlist, quota_budget, model_route
+- [x] All schemas have catalog entries in schemas/README.md
+- [x] All schemas have boundary tests
+
+### Benchmarks
+- [x] Criterion benches for all major schemas
+- [x] Prove/verify benchmarks documented in README
+
+### Documentation
+- [x] SCHEMA_V0.md frozen specification
+- [x] HOST_INTEGRATION.md verify-only guide
+- [x] PROOF_PACKAGE.md portable format docs
+- [ ] WASM.md: verify browser build actually works (currently deferred)
+- [ ] API docs: ensure all public items have rustdoc comments
+
+### Testing
+- [x] Golden proof tests
+- [x] Property-based tests (proptest)
+- [x] Boundary tests for each schema
+- [ ] Integration test with real MCP host (manual verification)
+
+### CI
+- [x] Format, clippy, test, docs jobs
+- [x] Schema JSON validation
+- [x] Schema parsing validation
+- [x] Security audit job
+
+### Pre-tag verification
+- [ ] Verify all examples run without errors
+- [ ] Verify CLI commands work end-to-end
+- [ ] Review CHANGELOG for completeness
+
+---
+
+## General Pre-release Steps
 
 1. **Version bump** — update `version` in:
    - `Cargo.toml` (workspace `[workspace.package]`)
