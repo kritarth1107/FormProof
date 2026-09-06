@@ -304,6 +304,99 @@ fn bench_verify_tool_allowlist(c: &mut Criterion) {
     });
 }
 
+fn quota_budget_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "budget_units": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+            "period": { "enum": ["daily", "weekly", "monthly"] },
+            "soft_cap": { "type": "integer", "minimum": 0, "maximum": 1000000 }
+        },
+        "required": ["budget_units", "period"]
+    }"#,
+    )
+    .unwrap()
+}
+
+fn model_route_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "model_id": { "enum": ["gpt-4o", "gpt-4o-mini", "claude-3-opus", "claude-3-sonnet", "claude-3-haiku", "gemini-pro", "llama-3", "mixtral"] },
+            "max_tokens": { "type": "integer", "minimum": 1, "maximum": 128000 },
+            "priority": { "enum": ["low", "normal", "high", "critical"] },
+            "temperature_class": { "enum": ["deterministic", "balanced", "creative"] }
+        },
+        "required": ["model_id", "max_tokens", "priority"]
+    }"#,
+    )
+    .unwrap()
+}
+
+fn bench_prove_quota_budget(c: &mut Criterion) {
+    let schema = quota_budget_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_u64("budget_units", 50000);
+    witness.set_enum("period", "monthly");
+    witness.set_u64("soft_cap", 40000);
+
+    c.bench_function("prove_quota_budget", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_quota_budget(c: &mut Criterion) {
+    let schema = quota_budget_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_u64("budget_units", 50000);
+    witness.set_enum("period", "monthly");
+    witness.set_u64("soft_cap", 40000);
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_quota_budget", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
+fn bench_prove_model_route(c: &mut Criterion) {
+    let schema = model_route_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("model_id", "claude-3-sonnet");
+    witness.set_u64("max_tokens", 8192);
+    witness.set_enum("priority", "high");
+    witness.set_enum("temperature_class", "balanced");
+
+    c.bench_function("prove_model_route", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_model_route(c: &mut Criterion) {
+    let schema = model_route_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("model_id", "claude-3-sonnet");
+    witness.set_u64("max_tokens", 8192);
+    witness.set_enum("priority", "high");
+    witness.set_enum("temperature_class", "balanced");
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_model_route", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
 criterion_group!(
     benches,
     bench_prove_refund,
@@ -320,6 +413,10 @@ criterion_group!(
     bench_verify_age_gate,
     bench_prove_tool_allowlist,
     bench_verify_tool_allowlist,
+    bench_prove_quota_budget,
+    bench_verify_quota_budget,
+    bench_prove_model_route,
+    bench_verify_model_route,
 );
 
 criterion_main!(benches);
