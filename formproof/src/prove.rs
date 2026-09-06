@@ -167,6 +167,34 @@ impl Proof {
             commitment,
         })
     }
+
+    /// Create a portable proof package bundling this proof with schema fingerprint.
+    ///
+    /// The package contains everything needed to verify the proof:
+    /// - Serialized proof bytes (hex-encoded)
+    /// - Commitment (hex-encoded)
+    /// - Schema fingerprint (SHA-256 of normalized schema JSON)
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use formproof::{FormProofSchema, CompiledSchema, Witness, Proof};
+    ///
+    /// let schema = FormProofSchema::from_json(r#"{"type":"object","properties":{"x":{"type":"integer"}},"required":["x"]}"#).unwrap();
+    /// let compiled = CompiledSchema::compile(schema).unwrap();
+    /// let mut witness = Witness::new();
+    /// witness.set_u64("x", 42);
+    /// let proof = Proof::create(&compiled, &witness).unwrap();
+    ///
+    /// let package = proof.to_package(&compiled.schema).unwrap();
+    /// println!("{}", package.to_json().unwrap());
+    /// ```
+    pub fn to_package(
+        &self,
+        schema: &crate::schema::FormProofSchema,
+    ) -> Result<crate::package::ProofPackage, crate::package::PackageError> {
+        crate::package::ProofPackage::from_proof(self, schema)
+    }
 }
 
 #[cfg(test)]

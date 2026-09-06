@@ -42,6 +42,28 @@
 //! // Verify proof (verifier only sees commitment, not values)
 //! assert!(verify(&compiled, &proof).unwrap());
 //! ```
+//!
+//! # Proof Packages
+//!
+//! For easy transport, bundle proof + commitment + schema fingerprint in a
+//! [`ProofPackage`]:
+//!
+//! ```no_run
+//! use formproof::{FormProofSchema, CompiledSchema, Witness, ProofPackage};
+//!
+//! let schema = FormProofSchema::from_json(r#"{"type":"object","properties":{"x":{"type":"integer"}},"required":["x"]}"#).unwrap();
+//! let compiled = CompiledSchema::compile(schema).unwrap();
+//! let mut witness = Witness::new();
+//! witness.set_u64("x", 42);
+//!
+//! // Create package (bundles proof + commitment + schema fingerprint)
+//! let package = ProofPackage::create(&compiled, &witness).unwrap();
+//! let json = package.to_json().unwrap();
+//!
+//! // Later: verify package against same schema
+//! let loaded = ProofPackage::from_json(&json).unwrap();
+//! loaded.verify(&compiled).unwrap();
+//! ```
 
 pub mod circuit;
 pub mod package;
