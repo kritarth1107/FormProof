@@ -1,5 +1,7 @@
 use clap::{Parser, Subcommand};
-use formproof::{verify, CompiledSchema, FormProofSchema, Proof, Witness};
+use formproof::{
+    schema_fingerprint, verify, CompiledSchema, FormProofSchema, Proof, ProofPackage, Witness,
+};
 use std::fs;
 use std::path::PathBuf;
 
@@ -70,6 +72,44 @@ enum Commands {
         /// Path to JSON Schema file
         #[arg(short, long)]
         schema: PathBuf,
+    },
+
+    /// Build a portable proof package (bundles proof + commitment + schema fingerprint)
+    PackageBuild {
+        /// Path to JSON Schema file
+        #[arg(short, long)]
+        schema: PathBuf,
+
+        /// Path to proving key file
+        #[arg(short, long)]
+        proving_key: PathBuf,
+
+        /// Path to witness JSON file
+        #[arg(short, long)]
+        witness: PathBuf,
+
+        /// Output path for package JSON
+        #[arg(short, long, default_value = "proof_package.json")]
+        output: PathBuf,
+
+        /// Use compact JSON (no whitespace)
+        #[arg(long)]
+        compact: bool,
+    },
+
+    /// Verify a proof package against a compiled schema
+    PackageVerify {
+        /// Path to JSON Schema file
+        #[arg(short, long)]
+        schema: PathBuf,
+
+        /// Path to verifying key file
+        #[arg(short = 'k', long)]
+        verifying_key: PathBuf,
+
+        /// Path to proof package JSON file
+        #[arg(short, long)]
+        package: PathBuf,
     },
 }
 
@@ -230,6 +270,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("FormProof Schema Info");
             println!("=====================");
             println!("Properties: {}", parsed_schema.properties.len());
+            println!(
+                "Fingerprint: {}",
+                hex::encode(schema_fingerprint(&parsed_schema))
+            );
             println!();
 
             for prop in &parsed_schema.properties {
@@ -257,6 +301,118 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     formproof::PropertyType::String { max_length } => {
                         println!("  Type: string, maxLength={}", max_length);
                     }
+                }
+            }
+        }
+
+        Commands::PackageBuild {
+            schema,
+            proving_key,
+            witness: witness_path,
+            output,
+            compact,
+        } => {
+            println!("Loading schema...");
+            let schema_json = fs::read_to_string(&schema)?;
+            let parsed_schema = FormProofSchema::from_json(&schema_json)?;
+
+            println!("Loading proving key...");
+            let pk_bytes = fs::read(&proving_key)?;
+
+            let dummy_circuit =
+                formproof::circuit::FormProofCircuit::<ark_bn254::Fr>::new(parsed_schema.clone());
+            let mut rng = ark_std::rand::rngs::OsRng;
+            let (_, vk) = ark_groth16::Groth16::<ark_bn254::Bn254>::circuit_specific_setup(
+                dummy_circuit,
+                &mut rng,
+            )?;
+            let pvk = ark_groth16::Groth16::<ark_bn254::Bn254>::process_vk(&vk)?;
+
+            let pk =
+                ark_groth16::ProvingKey::<ark_bn254::Bn254>::deserialize_compressed(&pk_bytes[..])?;
+
+            let compiled = CompiledSchema {
+                schema: parsed_schema.clone(),
+                proving_key: pk,
+                verifying_key: pvk,
+            };
+
+            println!("Loading witness...");
+            let witness_json = fs::read_to_string(&witness_path)?;
+            let witness = parse_witness(&parsed_schema, &witness_json)?;
+
+            println!("Generating proof and building package...");
+            let package = ProofPackage::create(&compiled, &witness)?;
+
+            let json_output = if compact {
+                package.to_json_compact()?
+            } else {
+                package.to_json()?
+            };
+
+            fs::write(&output, &json_output)?;
+
+            println!("\nPackage built successfully!");
+            println!("  Output:      {:?} ({} bytes)", output, json_output.len());
+            println!("  Commitment:  {}", package.commitment_hex);
+            println!("  Fingerprint: {}", package.schema_fingerprint);
+            println!("\nThe package contains everything needed for verification.");
+            println!("Share this single file with the verifier.");
+        }
+
+        Commands::PackageVerify {
+            schema,
+            verifying_key,
+            package: package_path,
+        } => {
+            println!("Loading schema...");
+            let schema_json = fs::read_to_string(&schema)?;
+            let parsed_schema = FormProofSchema::from_json(&schema_json)?;
+
+            println!("Loading verifying key...");
+            let vk_bytes = fs::read(&verifying_key)?;
+
+            use ark_serialize::CanonicalDeserialize;
+            let pvk =
+                ark_groth16::PreparedVerifyingKey::<ark_bn254::Bn254>::deserialize_compressed(
+                    &vk_bytes[..],
+                )?;
+
+            let dummy_pk = {
+                let dummy_circuit = formproof::circuit::FormProofCircuit::<ark_bn254::Fr>::new(
+                    parsed_schema.clone(),
+                );
+                let mut rng = ark_std::rand::rngs::OsRng;
+                let (pk, _) = ark_groth16::Groth16::<ark_bn254::Bn254>::circuit_specific_setup(
+                    dummy_circuit,
+                    &mut rng,
+                )?;
+                pk
+            };
+
+            let compiled = CompiledSchema {
+                schema: parsed_schema,
+                proving_key: dummy_pk,
+                verifying_key: pvk,
+            };
+
+            println!("Loading package...");
+            let package_json = fs::read_to_string(&package_path)?;
+            let package = ProofPackage::from_json(&package_json)?;
+
+            println!("Verifying package...");
+            println!("  Commitment:  {}", package.commitment_hex);
+            println!("  Fingerprint: {}", package.schema_fingerprint);
+
+            match package.verify(&compiled) {
+                Ok(()) => {
+                    println!("\n✓ Package is VALID");
+                    println!("  The prover has demonstrated that their private data");
+                    println!("  satisfies all schema constraints.");
+                }
+                Err(e) => {
+                    println!("\n✗ Package verification failed: {}", e);
+                    std::process::exit(1);
                 }
             }
         }
