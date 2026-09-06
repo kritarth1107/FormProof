@@ -44,11 +44,13 @@
 //! ```
 
 pub mod circuit;
+pub mod package;
 pub mod prove;
 pub mod schema;
 pub mod verify;
 
 pub use circuit::{Witness, WitnessValue};
+pub use package::{schema_fingerprint, PackageError, ProofPackage, PACKAGE_VERSION};
 pub use prove::{CompiledSchema, Proof, ProveError};
 pub use schema::{FormProofSchema, Property, PropertyType, SchemaError};
 pub use verify::{verify, verify_or_err, VerifyError};

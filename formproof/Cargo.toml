@@ -31,12 +31,13 @@ thiserror.workspace = true
 num-bigint = "0.4"
 
 [dev-dependencies]
-tempfile = "3"
+tempfile.workspace = true
 hex = "0.4"
 criterion.workspace = true
 proptest.workspace = true
-zeroize.workspace = true
-getrandom.workspace = true
+zeroize = { workspace = true, features = ["derive"] }
+zeroize_derive.workspace = true
+getrandom = "0.2.15"
 
 [[bench]]
 name = "proof_bench"
