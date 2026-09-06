@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "budget_units": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "period": {
+      "enum": ["daily", "weekly", "monthly"]
+    },
+    "soft_cap": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    }
+  },
+  "required": ["budget_units", "period"]
+}
