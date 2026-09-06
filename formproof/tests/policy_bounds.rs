@@ -81,12 +81,9 @@ mod rate_limit {
             Proof::create(&compiled, &witness)
         }));
 
-        match result {
-            Ok(Ok(proof)) => {
-                let verified = verify(&compiled, &proof).unwrap_or(false);
-                assert!(!verified, "Expected requests_per_window=0 to be rejected");
-            }
-            Ok(Err(_)) | Err(_) => {}
+        if let Ok(Ok(proof)) = result {
+            let verified = verify(&compiled, &proof).unwrap_or(false);
+            assert!(!verified, "Expected requests_per_window=0 to be rejected");
         }
     }
 
@@ -190,12 +187,9 @@ mod tool_allowlist {
             Proof::create(&compiled, &witness)
         }));
 
-        match result {
-            Ok(Ok(proof)) => {
-                let verified = verify(&compiled, &proof).unwrap_or(false);
-                assert!(!verified, "Expected max_args=65 to be rejected");
-            }
-            Ok(Err(_)) | Err(_) => {}
+        if let Ok(Ok(proof)) = result {
+            let verified = verify(&compiled, &proof).unwrap_or(false);
+            assert!(!verified, "Expected max_args=65 to be rejected");
         }
     }
 }

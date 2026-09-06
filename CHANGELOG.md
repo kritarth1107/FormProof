@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Portable proof packages**: `ProofPackage` bundles proof + commitment + schema fingerprint
+  - JSON serialization for easy transport between hosts
+  - Schema fingerprint (SHA-256) for verifier schema binding
+  - `Proof::to_package()` convenience method
+  - `docs/PROOF_PACKAGE.md` documenting format, usage, and threat notes
+- **CLI package commands**: `package-build` and `package-verify`
+  - Build portable packages from witness files
+  - Verify packages with fingerprint and proof validation
+  - `--compact` flag for minified JSON output
+  - `info` command now shows schema fingerprint
+- **New MCP policy schemas**:
+  - `schemas/rate_limit.json`: requests_per_window, window_secs, tier
+  - `schemas/tool_allowlist.json`: tool_name enum, max_args, scope
+- `examples/proof_package_demo.rs` demonstrating package workflow
+- `formproof/tests/package_roundtrip.rs` for package create/verify tests
+- `formproof/tests/policy_bounds.rs` for rate_limit and tool_allowlist bounds
 - Property-based tests using proptest for schema parser and circuit validation
 - Fuzz-like integration tests for schema parser edge cases
 - `docs/FUZZING.md` documenting property testing and fuzzing approach

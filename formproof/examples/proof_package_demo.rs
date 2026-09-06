@@ -41,10 +41,7 @@ fn main() {
 
     println!("\n5. Testing tamper detection: modify commitment");
     let mut tampered_json = json.clone();
-    tampered_json = tampered_json.replace(
-        &loaded.commitment_hex[..8],
-        "deadbeef",
-    );
+    tampered_json = tampered_json.replace(&loaded.commitment_hex[..8], "deadbeef");
     let tampered = ProofPackage::from_json(&tampered_json).expect("Deserialization failed");
     match tampered.verify(&compiled) {
         Ok(()) => println!("   ✗ Should have failed but passed"),
@@ -66,7 +63,8 @@ fn main() {
     let compact = package.to_json_compact().expect("Serialization failed");
     println!("   Pretty JSON: {} bytes", json.len());
     println!("   Compact JSON: {} bytes", compact.len());
-    println!("   Savings: {} bytes ({:.1}%)",
+    println!(
+        "   Savings: {} bytes ({:.1}%)",
         json.len() - compact.len(),
         (json.len() - compact.len()) as f64 / json.len() as f64 * 100.0
     );
@@ -109,7 +107,12 @@ fn load_schema() -> FormProofSchema {
     }
 }
 
-fn create_package(compiled: &CompiledSchema, requests: u64, window: u64, tier: &str) -> ProofPackage {
+fn create_package(
+    compiled: &CompiledSchema,
+    requests: u64,
+    window: u64,
+    tier: &str,
+) -> ProofPackage {
     println!("   requests_per_window: {}", requests);
     println!("   window_secs: {}", window);
     println!("   tier: {}", tier);

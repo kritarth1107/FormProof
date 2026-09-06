@@ -63,7 +63,7 @@ cargo build --release
 ## CLI Usage
 
 ```bash
-# Show schema constraints
+# Show schema constraints and fingerprint
 formproof info --schema schemas/refund.json
 
 # Compile schema to proving/verifying keys
@@ -78,7 +78,25 @@ formproof verify --schema schemas/refund.json --verifying-key keys/verifying_key
     --proof proof.bin --commitment <hex-commitment>
 ```
 
-Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`).
+### Proof Packages
+
+For easier transport, bundle proof + commitment + schema fingerprint into a single JSON file:
+
+```bash
+# Build a portable proof package
+formproof package-build --schema schemas/refund.json \
+    --proving-key keys/proving_key.bin \
+    --witness witness.json --output proof_package.json
+
+# Verify a package (checks fingerprint + proof)
+formproof package-verify --schema schemas/refund.json \
+    --verifying-key keys/verifying_key.bin \
+    --package proof_package.json
+```
+
+See [docs/PROOF_PACKAGE.md](docs/PROOF_PACKAGE.md) for format details.
+
+Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`, `rate_limit`, `tool_allowlist`).
 
 ### Example Files
 
@@ -161,17 +179,19 @@ formproof/           # Core library
 │   ├── circuit.rs   # R1CS circuit generation
 │   ├── prove.rs     # Groth16 proving
 │   ├── verify.rs    # Groth16 verification
+│   ├── package.rs   # Portable proof packages
 │   └── lib.rs       # Public API
 ├── benches/
 │   └── proof_bench.rs  # Criterion benchmarks
 ├── examples/
-│   ├── mcp_tool_host.rs  # MCP integration example
-│   ├── verify_only.rs    # Host-side verify-only workflow
-│   └── spend_cap_demo.rs # Spend cap policy demonstration
+│   ├── mcp_tool_host.rs     # MCP integration example
+│   ├── verify_only.rs       # Host-side verify-only workflow
+│   ├── spend_cap_demo.rs    # Spend cap policy demonstration
+│   └── proof_package_demo.rs # Proof package workflow
 └── tests/
     └── golden.rs    # Golden proofs + rejection corpus
 
-formproof-cli/       # CLI binary
+formproof-cli/       # CLI binary (compile, prove, verify, package-build, package-verify)
 └── src/main.rs
 
 schemas/             # Reusable v0 policy fixtures
@@ -179,12 +199,15 @@ schemas/             # Reusable v0 policy fixtures
 ├── age_gate.json
 ├── access_country.json
 ├── spend_cap.json
-└── session_ttl.json
+├── session_ttl.json
+├── rate_limit.json      # MCP rate-limit policy
+└── tool_allowlist.json  # MCP tool access policy
 
 docs/
 ├── SCHEMA_V0.md          # Frozen schema specification
 ├── THREAT_MODEL.md       # Security model and trust assumptions
 ├── HOST_INTEGRATION.md   # Host verify-only integration
+├── PROOF_PACKAGE.md      # Portable proof package format
 ├── WASM.md               # WebAssembly verification notes
 └── RELEASE.md            # Release preparation checklist
 ```
