@@ -73,6 +73,35 @@ fn session_ttl_schema() -> FormProofSchema {
     .unwrap()
 }
 
+fn age_gate_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "age": { "type": "integer", "minimum": 18, "maximum": 120 },
+            "region": { "enum": ["US", "EU", "UK", "IN"] }
+        },
+        "required": ["age", "region"]
+    }"#,
+    )
+    .unwrap()
+}
+
+fn tool_allowlist_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "tool_name": { "enum": ["read", "write", "execute", "list", "search", "delete"] },
+            "max_args": { "type": "integer", "minimum": 0, "maximum": 64 },
+            "scope": { "enum": ["local", "remote", "any"] }
+        },
+        "required": ["tool_name", "scope"]
+    }"#,
+    )
+    .unwrap()
+}
+
 fn bench_prove_refund(c: &mut Criterion) {
     let schema = refund_schema();
     let compiled = CompiledSchema::compile(schema).unwrap();
@@ -217,6 +246,64 @@ fn bench_verify_session_ttl(c: &mut Criterion) {
     });
 }
 
+fn bench_prove_age_gate(c: &mut Criterion) {
+    let schema = age_gate_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_u64("age", 25);
+    witness.set_enum("region", "US");
+
+    c.bench_function("prove_age_gate", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_age_gate(c: &mut Criterion) {
+    let schema = age_gate_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_u64("age", 25);
+    witness.set_enum("region", "US");
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_age_gate", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
+fn bench_prove_tool_allowlist(c: &mut Criterion) {
+    let schema = tool_allowlist_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("tool_name", "read");
+    witness.set_u64("max_args", 8);
+    witness.set_enum("scope", "local");
+
+    c.bench_function("prove_tool_allowlist", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_tool_allowlist(c: &mut Criterion) {
+    let schema = tool_allowlist_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("tool_name", "read");
+    witness.set_u64("max_args", 8);
+    witness.set_enum("scope", "local");
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_tool_allowlist", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
 criterion_group!(
     benches,
     bench_prove_refund,
@@ -229,6 +316,10 @@ criterion_group!(
     bench_verify_rate_limit,
     bench_prove_session_ttl,
     bench_verify_session_ttl,
+    bench_prove_age_gate,
+    bench_verify_age_gate,
+    bench_prove_tool_allowlist,
+    bench_verify_tool_allowlist,
 );
 
 criterion_main!(benches);
