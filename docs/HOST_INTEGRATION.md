@@ -79,6 +79,44 @@ Asking for the witness alongside the proof defeats the point of FormProof.
 
 Never soft-fail into "trust the agent anyway."
 
+## Model Routing Policy Example
+
+The `model_route` schema demonstrates a common MCP use case: verifying that an agent's model request falls within allowed parameters without revealing the exact configuration.
+
+**Schema fields:**
+- `model_id`: enum of 8 allowed models (gpt-4o, claude-3-opus, etc.)
+- `max_tokens`: integer (1–128000) for output token limit
+- `priority`: enum (low/normal/high/critical) for request queueing
+- `temperature_class` (optional): enum for creativity tier
+
+**Host-side considerations:**
+
+1. **Rate limiting by model**: Hosts can apply different rate limits per model tier without knowing which specific model was requested—only that it's in the allowed set.
+
+2. **Cost attribution**: The max_tokens field bounds resource usage. Hosts can estimate maximum cost per request class without seeing exact values.
+
+3. **Priority queueing**: The priority field enables queue management (critical requests first) while keeping the full routing config private.
+
+4. **Audit trail**: Log `(commitment, priority, verified)` tuples. The commitment allows correlation without exposing model selection.
+
+Example verification flow:
+
+```rust
+// Host receives proof + commitment from agent
+let model_route_schema = load_schema("schemas/model_route.json");
+let compiled = CompiledSchema::compile(model_route_schema)?;
+
+// Verify without learning model_id or token count
+if verify(&compiled, &proof)? {
+    // Agent request satisfies model routing policy
+    route_to_inference_backend(commitment);
+} else {
+    reject_request("policy violation");
+}
+```
+
+See [`examples/model_route_demo.rs`](../formproof/examples/model_route_demo.rs) for a complete demonstration.
+
 ## Commitment Binding
 
 The commitment is a hash of the witness. If an attacker swaps the commitment while keeping proof bytes, verification fails (see the tamper demo in `examples/verify_only.rs`). Hosts should bind `(tool_name, schema_id, commitment, proof)` together in their audit log.
