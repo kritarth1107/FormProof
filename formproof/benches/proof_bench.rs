@@ -44,6 +44,35 @@ fn token_schema() -> FormProofSchema {
     .unwrap()
 }
 
+fn rate_limit_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "requests_per_window": { "type": "integer", "minimum": 1, "maximum": 10000 },
+            "window_secs": { "type": "integer", "minimum": 1, "maximum": 86400 },
+            "tier": { "enum": ["free", "basic", "pro", "enterprise"] }
+        },
+        "required": ["requests_per_window", "window_secs", "tier"]
+    }"#,
+    )
+    .unwrap()
+}
+
+fn session_ttl_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "ttl_seconds": { "type": "integer", "minimum": 1, "maximum": 86400 },
+            "tier": { "enum": ["free", "pro", "enterprise"] }
+        },
+        "required": ["ttl_seconds", "tier"]
+    }"#,
+    )
+    .unwrap()
+}
+
 fn bench_prove_refund(c: &mut Criterion) {
     let schema = refund_schema();
     let compiled = CompiledSchema::compile(schema).unwrap();
@@ -130,6 +159,64 @@ fn bench_verify_token(c: &mut Criterion) {
     });
 }
 
+fn bench_prove_rate_limit(c: &mut Criterion) {
+    let schema = rate_limit_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_u64("requests_per_window", 100);
+    witness.set_u64("window_secs", 3600);
+    witness.set_enum("tier", "pro");
+
+    c.bench_function("prove_rate_limit", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_rate_limit(c: &mut Criterion) {
+    let schema = rate_limit_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_u64("requests_per_window", 100);
+    witness.set_u64("window_secs", 3600);
+    witness.set_enum("tier", "pro");
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_rate_limit", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
+fn bench_prove_session_ttl(c: &mut Criterion) {
+    let schema = session_ttl_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_u64("ttl_seconds", 3600);
+    witness.set_enum("tier", "pro");
+
+    c.bench_function("prove_session_ttl", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_session_ttl(c: &mut Criterion) {
+    let schema = session_ttl_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_u64("ttl_seconds", 3600);
+    witness.set_enum("tier", "pro");
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_session_ttl", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
 criterion_group!(
     benches,
     bench_prove_refund,
@@ -138,6 +225,10 @@ criterion_group!(
     bench_verify_user,
     bench_prove_token,
     bench_verify_token,
+    bench_prove_rate_limit,
+    bench_verify_rate_limit,
+    bench_prove_session_ttl,
+    bench_verify_session_ttl,
 );
 
 criterion_main!(benches);

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `formproof/tests/session_ttl_bounds.rs` for session TTL boundary validation
+- `formproof/tests/age_gate_bounds.rs` for age gate boundary validation
+- Criterion benches for `rate_limit` and `session_ttl` prove/verify
 - **Portable proof packages**: `ProofPackage` bundles proof + commitment + schema fingerprint
   - JSON serialization for easy transport between hosts
   - Schema fingerprint (SHA-256) for verifier schema binding
