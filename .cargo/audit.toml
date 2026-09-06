@@ -1,0 +1,18 @@
+# Cargo audit configuration for FormProof
+# https://rustsec.org/
+
+[advisories]
+# Advisories to ignore - transitive deps from arkworks cryptographic stack
+ignore = [
+    # tracing-subscriber 0.2.25 via ark-relations: ANSI escape injection in logs.
+    # Not exploitable in FormProof - tracing is dev/debug only, no user input logged.
+    "RUSTSEC-2025-0055",
+
+    # derivative 2.2.0 via ark-ff/ark-ec: unmaintained macro crate.
+    # Transitive dep locked by arkworks; no security impact, just maintenance status.
+    "RUSTSEC-2024-0388",
+
+    # paste 1.0.15 via ark-ff: unmaintained macro crate.
+    # Transitive dep locked by arkworks; no security impact, just maintenance status.
+    "RUSTSEC-2024-0436",
+]
