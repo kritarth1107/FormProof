@@ -96,7 +96,7 @@ formproof package-verify --schema schemas/refund.json \
 
 See [docs/PROOF_PACKAGE.md](docs/PROOF_PACKAGE.md) for format details.
 
-Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`, `rate_limit`, `tool_allowlist`, `quota_budget`, `model_route`).
+Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`, `rate_limit`, `tool_allowlist`, `quota_budget`, `model_route`, `data_residency`).
 
 ### Example Files
 
@@ -127,6 +127,7 @@ This is an early version with intentionally limited scope.
 - [docs/SCHEMA_V0.md](docs/SCHEMA_V0.md) — Complete frozen schema specification
 - [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md) — Security model and trust assumptions
 - [docs/HOST_INTEGRATION.md](docs/HOST_INTEGRATION.md) — MCP/tool host verify-only integration
+- [docs/DATA_RESIDENCY.md](docs/DATA_RESIDENCY.md) — Data residency / retention policy guide
 - [docs/WASM.md](docs/WASM.md) — WebAssembly verification path and caveats
 - [docs/RELEASE.md](docs/RELEASE.md) — Release preparation checklist
 - [SECURITY.md](SECURITY.md) — Supported versions and vulnerability reporting
@@ -167,6 +168,7 @@ MCP tool hosts often need to validate that agent requests meet policies without 
 - **Refunds**: Verify amount ≤ $50 without seeing the exact amount
 - **Access control**: Verify user is in allowed country list without revealing location
 - **Age verification**: Prove age ≥ 18 without revealing exact age
+- **Data residency**: Prove placement/retention policy without revealing the exact region tuple
 
 This **complements** (does not replace) OAuth and standard authorization. OAuth proves *who* is making a request; FormProof proves the request *content* satisfies constraints.
 
@@ -193,7 +195,8 @@ formproof/           # Core library
 │   ├── proof_package_demo.rs   # Proof package workflow
 │   ├── rate_limit_demo.rs      # Rate limit policy demonstration
 │   ├── tool_allowlist_demo.rs  # Tool allowlist policy demonstration
-│   └── age_gate_demo.rs        # Age gate policy demonstration
+│   ├── age_gate_demo.rs        # Age gate policy demonstration
+│   └── data_residency_demo.rs  # Data residency policy demonstration
 └── tests/
     └── golden.rs    # Golden proofs + rejection corpus
 
@@ -209,12 +212,14 @@ schemas/             # Reusable v0 policy fixtures
 ├── rate_limit.json      # MCP rate-limit policy
 ├── tool_allowlist.json  # MCP tool access policy
 ├── quota_budget.json    # MCP quota/budget policy
-└── model_route.json     # MCP model-routing policy
+├── model_route.json     # MCP model-routing policy
+└── data_residency.json  # MCP data-residency policy
 
 docs/
 ├── SCHEMA_V0.md          # Frozen schema specification
 ├── THREAT_MODEL.md       # Security model and trust assumptions
 ├── HOST_INTEGRATION.md   # Host verify-only integration
+├── DATA_RESIDENCY.md     # Data residency / retention policy
 ├── PROOF_PACKAGE.md      # Portable proof package format
 ├── WASM.md               # WebAssembly verification notes
 └── RELEASE.md            # Release preparation checklist
