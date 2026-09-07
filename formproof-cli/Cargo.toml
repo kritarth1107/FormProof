@@ -26,3 +26,6 @@ ark-std.workspace = true
 clap.workspace = true
 hex.workspace = true
 serde_json.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
