@@ -125,7 +125,8 @@ jobs:
             rate_limit_demo \
             tool_allowlist_demo \
             age_gate_demo \
-            data_residency_demo
+            data_residency_demo \
+            purpose_bind_demo
           do
             echo "=== Running $example ==="
             cargo run -p formproof --example "$example"
