@@ -235,6 +235,10 @@ cargo test --test proptest_schema
 # Run fuzz-like tests
 cargo test --test fuzz_schema
 
+# Run CLI end-to-end tests (requires release build)
+cargo build --release -p formproof-cli
+cargo test --release -p formproof-cli --test cli_e2e
+
 # Run with output
 cargo test -- --nocapture
 ```
@@ -245,6 +249,7 @@ Tests include:
 - Edge cases: boundary values, optional fields, bytes32
 - Property tests: random valid/invalid schemas, witness/circuit satisfaction
 - Fuzz tests: arbitrary JSON input, malformed schemas, edge cases
+- CLI e2e tests: all CLI commands against real schemas (info, compile, prove, verify, package-build, package-verify)
 
 See [docs/FUZZING.md](docs/FUZZING.md) for property testing and fuzzing details.
 
@@ -284,6 +289,8 @@ GitHub Actions runs on every PR:
 - **Test**: `cargo test`
 - **Docs**: `cargo doc --no-deps -p formproof` with `-D warnings`
 - **Build**: Release build and CLI check
+- **CLI e2e**: End-to-end tests for all CLI commands
+- **Examples smoke**: Run all example programs
 
 ## Contributing
 
