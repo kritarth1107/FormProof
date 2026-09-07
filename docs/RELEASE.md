@@ -21,7 +21,7 @@ Outstanding items before tagging v0.1.0:
 - [x] HOST_INTEGRATION.md verify-only guide
 - [x] PROOF_PACKAGE.md portable format docs
 - [ ] WASM.md: verify browser build actually works (currently deferred)
-- [ ] API docs: ensure all public items have rustdoc comments
+- [x] API docs: ensure all public items have rustdoc comments
 
 ### Testing
 - [x] Golden proof tests
@@ -35,10 +35,11 @@ Outstanding items before tagging v0.1.0:
 - [x] Schema parsing validation
 - [x] Security audit job
 - [x] Examples smoke test job (runs all formproof examples)
+- [x] CLI end-to-end test job (exercises all CLI commands)
 
 ### Pre-tag verification
 - [x] Verify all examples run without errors (automated via examples-smoke CI)
-- [ ] Verify CLI commands work end-to-end
+- [x] Verify CLI commands work end-to-end (automated via cli-e2e CI)
 - [ ] Review CHANGELOG for completeness
 
 ---

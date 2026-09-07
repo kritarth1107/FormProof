@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- CLI end-to-end test suite (`formproof-cli/tests/cli_e2e.rs`) exercising all CLI commands
+  - Tests for `info`, `compile`, `prove`, `verify`, `package-build`, `package-verify`
+  - Validates complete prove/verify workflows against real schemas
+  - Tests error handling for invalid inputs and wrong commitments
+- CI: `cli-e2e` job running CLI end-to-end tests against release binary
+- Re-export schema limit constants (`MAX_PROPERTIES`, `MAX_ENUM_VARIANTS`, `MAX_STRING_LENGTH`) in public API
 - `formproof/examples/rate_limit_demo.rs` demonstrating rate-limit policy prove/verify workflow
 - `formproof/examples/tool_allowlist_demo.rs` demonstrating tool allowlist policy prove/verify workflow
 - `formproof/examples/age_gate_demo.rs` demonstrating age gate policy prove/verify workflow
