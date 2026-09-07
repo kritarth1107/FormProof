@@ -16,6 +16,7 @@ These files match the subset documented in [docs/SCHEMA_V0.md](../docs/SCHEMA_V0
 | [`quota_budget.json`](quota_budget.json) | MCP quota/budget policy | `budget_units` (1–1000000), `period` enum, optional `soft_cap` (0–1000000) |
 | [`model_route.json`](model_route.json) | MCP model-routing policy | `model_id` enum, `max_tokens` (1–128000), `priority` enum, optional `temperature_class` enum |
 | [`data_residency.json`](data_residency.json) | MCP data-residency policy | `region` enum, `storage_class` enum, `retention_days` (1–3650), optional `cross_border` enum |
+| [`purpose_bind.json`](purpose_bind.json) | MCP purpose-limitation policy | `purpose` enum (6 values), `legal_basis` enum (4 values), optional `max_secondary_uses` (0–8) |
 
 ## Quick CLI Usage
 
@@ -95,6 +96,18 @@ formproof compile --schema schemas/refund.json --output ./keys
 { "region": "eu-west", "storage_class": "cold", "retention_days": 730, "cross_border": "eu-only" }
 ```
 
+**purpose_bind** (valid, required fields only):
+
+```json
+{ "purpose": "inference", "legal_basis": "consent" }
+```
+
+**purpose_bind** (valid, with optional max_secondary_uses):
+
+```json
+{ "purpose": "analytics", "legal_basis": "legitimate_interest", "max_secondary_uses": 2 }
+```
+
 Invalid examples (should fail to prove / fail verify):
 
 - refund with `"amount": 99`
@@ -111,6 +124,9 @@ Invalid examples (should fail to prove / fail verify):
 - data_residency with `"retention_days": 3651` (above maximum)
 - data_residency with `"region": "mars-1"` (not in enum)
 - data_residency with `"storage_class": "plasma"` (not in enum)
+- purpose_bind with `"purpose": "marketing"` (not in enum)
+- purpose_bind with `"legal_basis": "verbal_agreement"` (not in enum)
+- purpose_bind with `"max_secondary_uses": 9` (above maximum)
 
 ## Notes
 
