@@ -103,3 +103,29 @@ jobs:
         run: cargo build --release
       - name: Check CLI help
         run: ./target/release/formproof --help
+
+  examples-smoke:
+    name: Examples Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Run all formproof examples
+        run: |
+          set -e
+          for example in \
+            mcp_tool_host \
+            model_route_demo \
+            proof_package_demo \
+            quota_budget_demo \
+            session_ttl_demo \
+            spend_cap_demo \
+            verify_only \
+            rate_limit_demo \
+            tool_allowlist_demo \
+            age_gate_demo
+          do
+            echo "=== Running $example ==="
+            cargo run -p formproof --example "$example"
+          done

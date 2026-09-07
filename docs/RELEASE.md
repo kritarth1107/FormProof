@@ -34,9 +34,10 @@ Outstanding items before tagging v0.1.0:
 - [x] Schema JSON validation
 - [x] Schema parsing validation
 - [x] Security audit job
+- [x] Examples smoke test job (runs all formproof examples)
 
 ### Pre-tag verification
-- [ ] Verify all examples run without errors
+- [x] Verify all examples run without errors (automated via examples-smoke CI)
 - [ ] Verify CLI commands work end-to-end
 - [ ] Review CHANGELOG for completeness
 

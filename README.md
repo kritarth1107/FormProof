@@ -184,13 +184,16 @@ formproof/           # Core library
 ├── benches/
 │   └── proof_bench.rs  # Criterion benchmarks
 ├── examples/
-│   ├── mcp_tool_host.rs     # MCP integration example
-│   ├── verify_only.rs       # Host-side verify-only workflow
-│   ├── spend_cap_demo.rs    # Spend cap policy demonstration
-│   ├── session_ttl_demo.rs  # Session TTL policy demonstration
-│   ├── quota_budget_demo.rs # Quota/budget policy demonstration
-│   ├── model_route_demo.rs  # Model routing policy demonstration
-│   └── proof_package_demo.rs # Proof package workflow
+│   ├── mcp_tool_host.rs        # MCP integration example
+│   ├── verify_only.rs          # Host-side verify-only workflow
+│   ├── spend_cap_demo.rs       # Spend cap policy demonstration
+│   ├── session_ttl_demo.rs     # Session TTL policy demonstration
+│   ├── quota_budget_demo.rs    # Quota/budget policy demonstration
+│   ├── model_route_demo.rs     # Model routing policy demonstration
+│   ├── proof_package_demo.rs   # Proof package workflow
+│   ├── rate_limit_demo.rs      # Rate limit policy demonstration
+│   ├── tool_allowlist_demo.rs  # Tool allowlist policy demonstration
+│   └── age_gate_demo.rs        # Age gate policy demonstration
 └── tests/
     └── golden.rs    # Golden proofs + rejection corpus
 
