@@ -3,8 +3,10 @@
 //! These tests exercise the CLI commands (info, compile, prove, verify,
 //! package-build, package-verify) against real schemas under `schemas/`.
 
+use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Output};
+use tempfile::TempDir;
 
 fn project_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -101,6 +103,85 @@ mod info_tests {
     #[test]
     fn info_fails_on_missing_schema() {
         let output = run_cli(&["info", "--schema", "nonexistent.json"]);
+        assert_failure(&output);
+    }
+}
+
+mod compile_tests {
+    use super::*;
+
+    #[test]
+    fn compile_spend_cap_schema() {
+        let tmp = TempDir::new().expect("create temp dir");
+
+        let output = run_cli(&[
+            "compile",
+            "--schema",
+            schema_path("spend_cap.json").to_str().unwrap(),
+            "--output",
+            tmp.path().to_str().unwrap(),
+        ]);
+        assert_success(&output);
+
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(
+            stdout.contains("Compiled successfully"),
+            "should report success"
+        );
+
+        assert!(
+            tmp.path().join("proving_key.bin").exists(),
+            "proving key should exist"
+        );
+        assert!(
+            tmp.path().join("verifying_key.bin").exists(),
+            "verifying key should exist"
+        );
+        assert!(
+            tmp.path().join("schema.json").exists(),
+            "schema copy should exist"
+        );
+    }
+
+    #[test]
+    fn compile_age_gate_schema() {
+        let tmp = TempDir::new().expect("create temp dir");
+
+        let output = run_cli(&[
+            "compile",
+            "--schema",
+            schema_path("age_gate.json").to_str().unwrap(),
+            "--output",
+            tmp.path().to_str().unwrap(),
+        ]);
+        assert_success(&output);
+
+        let pk_path = tmp.path().join("proving_key.bin");
+        let vk_path = tmp.path().join("verifying_key.bin");
+
+        assert!(pk_path.exists());
+        assert!(vk_path.exists());
+
+        let pk_size = fs::metadata(&pk_path).unwrap().len();
+        let vk_size = fs::metadata(&vk_path).unwrap().len();
+
+        assert!(pk_size > 1000, "proving key should be substantial");
+        assert!(vk_size > 100, "verifying key should be substantial");
+    }
+
+    #[test]
+    fn compile_fails_on_invalid_schema() {
+        let tmp = TempDir::new().expect("create temp dir");
+        let invalid_schema = tmp.path().join("invalid.json");
+        fs::write(&invalid_schema, "{ not valid json }").unwrap();
+
+        let output = run_cli(&[
+            "compile",
+            "--schema",
+            invalid_schema.to_str().unwrap(),
+            "--output",
+            tmp.path().to_str().unwrap(),
+        ]);
         assert_failure(&output);
     }
 }
