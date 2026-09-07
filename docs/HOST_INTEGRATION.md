@@ -117,6 +117,36 @@ if verify(&compiled, &proof)? {
 
 See [`examples/model_route_demo.rs`](../formproof/examples/model_route_demo.rs) for a complete demonstration.
 
+## Data Residency Policy Example
+
+The `data_residency` schema covers store/move tool calls where the host must enforce placement and retention without learning the exact placement tuple.
+
+**Schema fields:**
+- `region`: enum of 8 allowed regions (us-east, eu-west, ap-south, …)
+- `storage_class`: enum (`hot`, `warm`, `cold`, `archive`)
+- `retention_days`: integer (1–3650)
+- `cross_border` (optional): enum (`forbidden`, `allowed`, `eu-only`)
+
+**Host-side considerations:**
+
+1. **Allowlist is the policy**: Expanding regions is a schema version bump; hosts should pin a fingerprint.
+2. **Verify before mutate**: Reject store/migrate tool calls unless verification returns true.
+3. **Cross-border optional**: Hosts that require transfer rules should fork a schema with `cross_border` required.
+4. **Audit trail**: Log `(commitment, verified, schema_fingerprint)` — never the region or retention days.
+
+```rust
+let residency_schema = load_schema("schemas/data_residency.json");
+let compiled = CompiledSchema::compile(residency_schema)?;
+
+if verify(&compiled, &proof)? {
+    accept_storage_request(commitment);
+} else {
+    reject_request("residency policy violation");
+}
+```
+
+See [`docs/DATA_RESIDENCY.md`](DATA_RESIDENCY.md) and [`examples/data_residency_demo.rs`](../formproof/examples/data_residency_demo.rs).
+
 ## Commitment Binding
 
 The commitment is a hash of the witness. If an attacker swaps the commitment while keeping proof bytes, verification fails (see the tamper demo in `examples/verify_only.rs`). Hosts should bind `(tool_name, schema_id, commitment, proof)` together in their audit log.
