@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "region": {
+      "enum": ["us-east", "us-west", "eu-west", "eu-central", "ap-south", "ap-northeast", "sa-east", "ca-central"]
+    },
+    "storage_class": {
+      "enum": ["hot", "warm", "cold", "archive"]
+    },
+    "retention_days": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3650
+    },
+    "cross_border": {
+      "enum": ["forbidden", "allowed", "eu-only"]
+    }
+  },
+  "required": ["region", "storage_class", "retention_days"]
+}
