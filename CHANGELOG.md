@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `schemas/purpose_bind.json`: MCP purpose-limitation policy with purpose enum (6 values), legal_basis enum (4 values), optional max_secondary_uses (0–8)
+- `formproof/tests/purpose_bind_bounds.rs` for purpose/legal_basis boundary validation
+- `formproof/examples/purpose_bind_demo.rs` demonstrating purpose_bind prove/verify workflow
+- `docs/PURPOSE_BIND.md` host policy guide for purpose-limitation proofs
+- HOST_INTEGRATION + THREAT_MODEL + SECURITY notes for purpose_bind hosts
 - `schemas/data_residency.json`: MCP data-residency policy with region enum (8 regions), storage_class, retention_days (1–3650), optional cross_border
 - `formproof/tests/data_residency_bounds.rs` for residency boundary validation
 - `formproof/examples/data_residency_demo.rs` demonstrating residency prove/verify workflow

@@ -147,6 +147,35 @@ if verify(&compiled, &proof)? {
 
 See [`docs/DATA_RESIDENCY.md`](DATA_RESIDENCY.md) and [`examples/data_residency_demo.rs`](../formproof/examples/data_residency_demo.rs).
 
+## Purpose Bind Policy Example
+
+The `purpose_bind` schema covers GDPR-style purpose-limitation policies where the host must verify that processing purpose and legal basis are within allowed sets without learning the exact tuple.
+
+**Schema fields:**
+- `purpose`: enum of 6 allowed purposes (inference/analytics/training/support/billing/debugging)
+- `legal_basis`: enum of 4 legal bases (consent/contract/legitimate_interest/legal_obligation)
+- `max_secondary_uses` (optional): integer (0–8) bounding secondary data uses
+
+**Host-side considerations:**
+
+1. **Purpose allowlist is the policy**: Expanding purposes is a schema version bump; hosts should pin a fingerprint.
+2. **Verify before processing**: Reject tool calls that process user data unless verification returns true.
+3. **Legal basis privacy**: The host learns a valid legal basis exists without knowing which one.
+4. **Secondary uses optional**: Hosts that require secondary-use bounds should fork a schema with `max_secondary_uses` required.
+
+```rust
+let purpose_schema = load_schema("schemas/purpose_bind.json");
+let compiled = CompiledSchema::compile(purpose_schema)?;
+
+if verify(&compiled, &proof)? {
+    accept_processing_request(commitment);
+} else {
+    reject_request("purpose policy violation");
+}
+```
+
+See [`docs/PURPOSE_BIND.md`](PURPOSE_BIND.md) and [`examples/purpose_bind_demo.rs`](../formproof/examples/purpose_bind_demo.rs).
+
 ## Commitment Binding
 
 The commitment is a hash of the witness. If an attacker swaps the commitment while keeping proof bytes, verification fails (see the tamper demo in `examples/verify_only.rs`). Hosts should bind `(tool_name, schema_id, commitment, proof)` together in their audit log.
