@@ -185,3 +185,161 @@ mod compile_tests {
         assert_failure(&output);
     }
 }
+
+mod prove_verify_tests {
+    use super::*;
+
+    fn setup_compiled_schema(schema_name: &str) -> (TempDir, PathBuf, PathBuf) {
+        let tmp = TempDir::new().expect("create temp dir");
+
+        let output = run_cli(&[
+            "compile",
+            "--schema",
+            schema_path(schema_name).to_str().unwrap(),
+            "--output",
+            tmp.path().to_str().unwrap(),
+        ]);
+        assert_success(&output);
+
+        let pk_path = tmp.path().join("proving_key.bin");
+        let vk_path = tmp.path().join("verifying_key.bin");
+
+        (tmp, pk_path, vk_path)
+    }
+
+    #[test]
+    fn prove_and_verify_spend_cap() {
+        let (tmp, pk_path, vk_path) = setup_compiled_schema("spend_cap.json");
+
+        let witness_json = r#"{"cents": 5000, "currency": "USD"}"#;
+        let witness_path = tmp.path().join("witness.json");
+        fs::write(&witness_path, witness_json).unwrap();
+
+        let proof_path = tmp.path().join("proof.bin");
+
+        let prove_output = run_cli(&[
+            "prove",
+            "--schema",
+            schema_path("spend_cap.json").to_str().unwrap(),
+            "--proving-key",
+            pk_path.to_str().unwrap(),
+            "--witness",
+            witness_path.to_str().unwrap(),
+            "--output",
+            proof_path.to_str().unwrap(),
+        ]);
+        assert_success(&prove_output);
+
+        let stdout = String::from_utf8_lossy(&prove_output.stdout);
+        assert!(stdout.contains("Proof generated successfully"));
+        assert!(stdout.contains("Commitment:"));
+
+        let commitment = stdout
+            .lines()
+            .find(|l| l.contains("Commitment:"))
+            .and_then(|l| l.split_whitespace().last())
+            .expect("should have commitment in output");
+
+        let verify_output = run_cli(&[
+            "verify",
+            "--schema",
+            schema_path("spend_cap.json").to_str().unwrap(),
+            "--verifying-key",
+            vk_path.to_str().unwrap(),
+            "--proof",
+            proof_path.to_str().unwrap(),
+            "--commitment",
+            commitment,
+        ]);
+        assert_success(&verify_output);
+
+        let verify_stdout = String::from_utf8_lossy(&verify_output.stdout);
+        assert!(verify_stdout.contains("Proof is VALID"));
+    }
+
+    #[test]
+    fn prove_and_verify_age_gate() {
+        let (tmp, pk_path, vk_path) = setup_compiled_schema("age_gate.json");
+
+        let witness_json = r#"{"age": 21, "region": "US"}"#;
+        let witness_path = tmp.path().join("witness.json");
+        fs::write(&witness_path, witness_json).unwrap();
+
+        let proof_path = tmp.path().join("proof.bin");
+
+        let prove_output = run_cli(&[
+            "prove",
+            "--schema",
+            schema_path("age_gate.json").to_str().unwrap(),
+            "--proving-key",
+            pk_path.to_str().unwrap(),
+            "--witness",
+            witness_path.to_str().unwrap(),
+            "--output",
+            proof_path.to_str().unwrap(),
+        ]);
+        assert_success(&prove_output);
+
+        let stdout = String::from_utf8_lossy(&prove_output.stdout);
+        let commitment = stdout
+            .lines()
+            .find(|l| l.contains("Commitment:"))
+            .and_then(|l| l.split_whitespace().last())
+            .expect("should have commitment");
+
+        let verify_output = run_cli(&[
+            "verify",
+            "--schema",
+            schema_path("age_gate.json").to_str().unwrap(),
+            "--verifying-key",
+            vk_path.to_str().unwrap(),
+            "--proof",
+            proof_path.to_str().unwrap(),
+            "--commitment",
+            commitment,
+        ]);
+        assert_success(&verify_output);
+
+        let verify_stdout = String::from_utf8_lossy(&verify_output.stdout);
+        assert!(verify_stdout.contains("Proof is VALID"));
+    }
+
+    #[test]
+    fn verify_fails_with_wrong_commitment() {
+        let (tmp, pk_path, vk_path) = setup_compiled_schema("spend_cap.json");
+
+        let witness_json = r#"{"cents": 5000, "currency": "USD"}"#;
+        let witness_path = tmp.path().join("witness.json");
+        fs::write(&witness_path, witness_json).unwrap();
+
+        let proof_path = tmp.path().join("proof.bin");
+
+        let prove_output = run_cli(&[
+            "prove",
+            "--schema",
+            schema_path("spend_cap.json").to_str().unwrap(),
+            "--proving-key",
+            pk_path.to_str().unwrap(),
+            "--witness",
+            witness_path.to_str().unwrap(),
+            "--output",
+            proof_path.to_str().unwrap(),
+        ]);
+        assert_success(&prove_output);
+
+        let wrong_commitment = "0000000000000000000000000000000000000000000000000000000000000000";
+
+        let verify_output = run_cli(&[
+            "verify",
+            "--schema",
+            schema_path("spend_cap.json").to_str().unwrap(),
+            "--verifying-key",
+            vk_path.to_str().unwrap(),
+            "--proof",
+            proof_path.to_str().unwrap(),
+            "--commitment",
+            wrong_commitment,
+        ]);
+        assert_failure(&verify_output);
+    }
+}
