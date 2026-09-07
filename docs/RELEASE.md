@@ -8,18 +8,20 @@ Outstanding items before tagging v0.1.0:
 
 ### Schemas
 - [x] Core policy schemas: refund, age_gate, access_country, spend_cap
-- [x] MCP schemas: session_ttl, rate_limit, tool_allowlist, quota_budget, model_route
+- [x] MCP schemas: session_ttl, rate_limit, tool_allowlist, quota_budget, model_route, data_residency
 - [x] All schemas have catalog entries in schemas/README.md
 - [x] All schemas have boundary tests
 
 ### Benchmarks
 - [x] Criterion benches for all major schemas
+- [ ] Criterion bench for data_residency prove/verify (optional follow-up)
 - [x] Prove/verify benchmarks documented in README
 
 ### Documentation
 - [x] SCHEMA_V0.md frozen specification
 - [x] HOST_INTEGRATION.md verify-only guide
 - [x] PROOF_PACKAGE.md portable format docs
+- [x] DATA_RESIDENCY.md policy guide
 - [ ] WASM.md: verify browser build actually works (currently deferred)
 - [x] API docs: ensure all public items have rustdoc comments
 
