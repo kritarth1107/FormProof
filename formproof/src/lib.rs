@@ -8,8 +8,9 @@
 //!
 //! # Supported Schema Subset (v0)
 //!
-//! - Object with ≤8 properties
-//! - Types: `u64` (integer), `enum` (≤8 variants), `bytes32`, `string` (≤64 chars)
+//! - Object with ≤[`MAX_PROPERTIES`] (8) properties
+//! - Types: `u64` (integer), `enum` (≤[`MAX_ENUM_VARIANTS`] variants), `bytes32`,
+//!   `string` (≤[`MAX_STRING_LENGTH`] chars)
 //! - Constraints: `required`, `minimum`, `maximum`, `maxLength`
 //!
 //! # Example
@@ -74,5 +75,8 @@ pub mod verify;
 pub use circuit::{Witness, WitnessValue};
 pub use package::{schema_fingerprint, PackageError, ProofPackage, PACKAGE_VERSION};
 pub use prove::{CompiledSchema, Proof, ProveError};
-pub use schema::{FormProofSchema, Property, PropertyType, SchemaError};
+pub use schema::{
+    FormProofSchema, Property, PropertyType, SchemaError, MAX_ENUM_VARIANTS, MAX_PROPERTIES,
+    MAX_STRING_LENGTH,
+};
 pub use verify::{verify, verify_or_err, VerifyError};
