@@ -8,7 +8,7 @@ Outstanding items before tagging v0.1.0:
 
 ### Schemas
 - [x] Core policy schemas: refund, age_gate, access_country, spend_cap
-- [x] MCP schemas: session_ttl, rate_limit, tool_allowlist, quota_budget, model_route, data_residency
+- [x] MCP schemas: session_ttl, rate_limit, tool_allowlist, quota_budget, model_route, data_residency, purpose_bind
 - [x] All schemas have catalog entries in schemas/README.md
 - [x] All schemas have boundary tests
 

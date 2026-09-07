@@ -78,6 +78,17 @@ For `schemas/data_residency.json`:
 
 See [DATA_RESIDENCY.md](DATA_RESIDENCY.md) for host integration details.
 
+## Purpose Bind Specific Notes
+
+For `schemas/purpose_bind.json`:
+
+- The **purpose allowlist is public**. A host learns that processing is for an allowed purpose, not which purpose was chosen.
+- **Small enum spaces** (6 purposes, 4 legal bases) mean commitment guessing is easier if an attacker also observes side channels; do not treat the commitment as strong confidentiality for tiny discrete spaces.
+- **Legal basis privacy**: The host learns a valid GDPR-style legal basis exists without knowing which one.
+- **Secondary uses** is optional; requiring it is a host policy choice (fork the schema if mandatory).
+
+See [PURPOSE_BIND.md](PURPOSE_BIND.md) for host integration details.
+
 ## What FormProof Does NOT Provide
 
 ### Not Authentication
