@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `formproof/examples/rate_limit_demo.rs` demonstrating rate-limit policy prove/verify workflow
+- `formproof/examples/tool_allowlist_demo.rs` demonstrating tool allowlist policy prove/verify workflow
+- `formproof/examples/age_gate_demo.rs` demonstrating age gate policy prove/verify workflow
+- CI: `examples-smoke` job running all formproof examples to catch regressions
 - `schemas/model_route.json`: MCP model-routing policy with model_id enum (8 models), max_tokens (1–128000), priority, optional temperature_class
 - `formproof/tests/model_route_bounds.rs` for model routing boundary validation
 - `formproof/examples/quota_budget_demo.rs` demonstrating quota/budget prove/verify workflow
