@@ -15,6 +15,7 @@ These files match the subset documented in [docs/SCHEMA_V0.md](../docs/SCHEMA_V0
 | [`tool_allowlist.json`](tool_allowlist.json) | MCP tool access policy | `tool_name` enum, optional `max_args` (0–64), `scope` enum |
 | [`quota_budget.json`](quota_budget.json) | MCP quota/budget policy | `budget_units` (1–1000000), `period` enum, optional `soft_cap` (0–1000000) |
 | [`model_route.json`](model_route.json) | MCP model-routing policy | `model_id` enum, `max_tokens` (1–128000), `priority` enum, optional `temperature_class` enum |
+| [`data_residency.json`](data_residency.json) | MCP data-residency policy | `region` enum, `storage_class` enum, `retention_days` (1–3650), optional `cross_border` enum |
 
 ## Quick CLI Usage
 
@@ -82,6 +83,18 @@ formproof compile --schema schemas/refund.json --output ./keys
 { "model_id": "gpt-4o", "max_tokens": 8192, "priority": "high", "temperature_class": "balanced" }
 ```
 
+**data_residency** (valid, required fields only):
+
+```json
+{ "region": "ap-south", "storage_class": "warm", "retention_days": 90 }
+```
+
+**data_residency** (valid, with optional cross_border):
+
+```json
+{ "region": "eu-west", "storage_class": "cold", "retention_days": 730, "cross_border": "eu-only" }
+```
+
 Invalid examples (should fail to prove / fail verify):
 
 - refund with `"amount": 99`
@@ -94,6 +107,10 @@ Invalid examples (should fail to prove / fail verify):
 - model_route with `"model_id": "unknown-model"` (not in enum)
 - model_route with `"max_tokens": 0` (below minimum)
 - model_route with `"max_tokens": 200000` (above maximum)
+- data_residency with `"retention_days": 0` (below minimum)
+- data_residency with `"retention_days": 3651` (above maximum)
+- data_residency with `"region": "mars-1"` (not in enum)
+- data_residency with `"storage_class": "plasma"` (not in enum)
 
 ## Notes
 
