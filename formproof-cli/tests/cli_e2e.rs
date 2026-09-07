@@ -342,6 +342,57 @@ mod prove_verify_tests {
         ]);
         assert_failure(&verify_output);
     }
+
+    #[test]
+    fn prove_and_verify_with_bytes32_type() {
+        let (tmp, pk_path, vk_path) = setup_compiled_schema("access_country.json");
+
+        let witness_json = r#"{
+            "country": "US",
+            "tier": "pro",
+            "token_id": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+        }"#;
+        let witness_path = tmp.path().join("witness.json");
+        fs::write(&witness_path, witness_json).unwrap();
+
+        let proof_path = tmp.path().join("proof.bin");
+
+        let prove_output = run_cli(&[
+            "prove",
+            "--schema",
+            schema_path("access_country.json").to_str().unwrap(),
+            "--proving-key",
+            pk_path.to_str().unwrap(),
+            "--witness",
+            witness_path.to_str().unwrap(),
+            "--output",
+            proof_path.to_str().unwrap(),
+        ]);
+        assert_success(&prove_output);
+
+        let stdout = String::from_utf8_lossy(&prove_output.stdout);
+        let commitment = stdout
+            .lines()
+            .find(|l| l.contains("Commitment:"))
+            .and_then(|l| l.split_whitespace().last())
+            .expect("should have commitment");
+
+        let verify_output = run_cli(&[
+            "verify",
+            "--schema",
+            schema_path("access_country.json").to_str().unwrap(),
+            "--verifying-key",
+            vk_path.to_str().unwrap(),
+            "--proof",
+            proof_path.to_str().unwrap(),
+            "--commitment",
+            commitment,
+        ]);
+        assert_success(&verify_output);
+
+        let verify_stdout = String::from_utf8_lossy(&verify_output.stdout);
+        assert!(verify_stdout.contains("Proof is VALID"));
+    }
 }
 
 mod package_tests {
