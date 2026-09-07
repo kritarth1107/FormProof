@@ -19,6 +19,11 @@ When used correctly, a verifier learns that a private witness satisfies a **publ
 - Replay without an application-level nonce or commitment store
 - Side channels in your host integration
 - Compromised proving keys or malicious circuits from a bad trusted setup
+- Confidentiality of small discrete spaces (for example guessing among 8 `data_residency` regions given side channels)
+
+## Policy Fixtures
+
+Reusable MCP/tool policies (including `data_residency`) live under [`schemas/`](schemas/). Treat each fixture's fingerprint as part of your security boundary when pinning host verification.
 
 ## Reporting a Vulnerability
 
