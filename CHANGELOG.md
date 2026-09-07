@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `schemas/data_residency.json`: MCP data-residency policy with region enum (8 regions), storage_class, retention_days (1–3650), optional cross_border
+- `formproof/tests/data_residency_bounds.rs` for residency boundary validation
+- `formproof/examples/data_residency_demo.rs` demonstrating residency prove/verify workflow
+- `docs/DATA_RESIDENCY.md` host policy guide for placement and retention proofs
+- HOST_INTEGRATION + THREAT_MODEL + SECURITY notes for data residency hosts
 - CLI end-to-end test suite (`formproof-cli/tests/cli_e2e.rs`) exercising all CLI commands
   - Tests for `info`, `compile`, `prove`, `verify`, `package-build`, `package-verify`
   - Validates complete prove/verify workflows against real schemas
