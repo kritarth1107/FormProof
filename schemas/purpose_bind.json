@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "purpose": {
+      "enum": ["inference", "analytics", "training", "support", "billing", "debugging"]
+    },
+    "legal_basis": {
+      "enum": ["consent", "contract", "legitimate_interest", "legal_obligation"]
+    },
+    "max_secondary_uses": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8
+    }
+  },
+  "required": ["purpose", "legal_basis"]
+}
