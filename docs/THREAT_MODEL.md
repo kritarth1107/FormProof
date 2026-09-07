@@ -67,6 +67,17 @@ A malicious agent **cannot** generate a valid proof for a witness that violates 
 
 **Unless** the trusted setup is compromised or there's a circuit bug.
 
+## Data Residency Specific Notes
+
+For `schemas/data_residency.json`:
+
+- The **region allowlist is public**. A host learns that placement is in the allowed set, not which region was chosen.
+- **Small enum spaces** (8 regions, 4 storage classes) mean commitment guessing is easier if an attacker also observes side channels; do not treat the commitment as strong confidentiality for tiny discrete spaces.
+- **Retention bounds** prove 1 ≤ days ≤ 3650 without revealing the exact retention window.
+- **Cross-border** is optional; requiring it is a host policy choice (fork the schema if mandatory).
+
+See [DATA_RESIDENCY.md](DATA_RESIDENCY.md) for host integration details.
+
 ## What FormProof Does NOT Provide
 
 ### Not Authentication
