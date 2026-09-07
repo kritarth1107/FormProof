@@ -129,3 +129,15 @@ jobs:
             echo "=== Running $example ==="
             cargo run -p formproof --example "$example"
           done
+
+  cli-e2e:
+    name: CLI End-to-End Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build CLI release binary
+        run: cargo build --release -p formproof-cli
+      - name: Run CLI e2e tests
+        run: cargo test --release -p formproof-cli --test cli_e2e -- --test-threads=1
