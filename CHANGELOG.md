@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `schemas/human_gate.json`: MCP human-in-the-loop approval policy with action_class enum (6 values), approval_tier enum (4 values), optional max_auto_approve_secs (0–86400)
+- `formproof/tests/human_gate_bounds.rs` for action_class/approval_tier boundary validation
+- `formproof/examples/human_gate_demo.rs` demonstrating human_gate prove/verify workflow
+- `docs/HUMAN_GATE.md` host policy guide for human-in-the-loop approval proofs
+- HOST_INTEGRATION + THREAT_MODEL + SECURITY notes for human_gate hosts
 - `schemas/purpose_bind.json`: MCP purpose-limitation policy with purpose enum (6 values), legal_basis enum (4 values), optional max_secondary_uses (0–8)
 - `formproof/tests/purpose_bind_bounds.rs` for purpose/legal_basis boundary validation
 - `formproof/examples/purpose_bind_demo.rs` demonstrating purpose_bind prove/verify workflow
