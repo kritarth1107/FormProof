@@ -17,6 +17,7 @@ These files match the subset documented in [docs/SCHEMA_V0.md](../docs/SCHEMA_V0
 | [`model_route.json`](model_route.json) | MCP model-routing policy | `model_id` enum, `max_tokens` (1–128000), `priority` enum, optional `temperature_class` enum |
 | [`data_residency.json`](data_residency.json) | MCP data-residency policy | `region` enum, `storage_class` enum, `retention_days` (1–3650), optional `cross_border` enum |
 | [`purpose_bind.json`](purpose_bind.json) | MCP purpose-limitation policy | `purpose` enum (6 values), `legal_basis` enum (4 values), optional `max_secondary_uses` (0–8) |
+| [`human_gate.json`](human_gate.json) | MCP human-in-the-loop approval policy | `action_class` enum (6 values), `approval_tier` enum (4 values), optional `max_auto_approve_secs` (0–86400) |
 
 ## Quick CLI Usage
 
@@ -108,6 +109,18 @@ formproof compile --schema schemas/refund.json --output ./keys
 { "purpose": "analytics", "legal_basis": "legitimate_interest", "max_secondary_uses": 2 }
 ```
 
+**human_gate** (valid, required fields only):
+
+```json
+{ "action_class": "read", "approval_tier": "self" }
+```
+
+**human_gate** (valid, with optional max_auto_approve_secs):
+
+```json
+{ "action_class": "payment", "approval_tier": "manager", "max_auto_approve_secs": 300 }
+```
+
 Invalid examples (should fail to prove / fail verify):
 
 - refund with `"amount": 99`
@@ -127,6 +140,10 @@ Invalid examples (should fail to prove / fail verify):
 - purpose_bind with `"purpose": "marketing"` (not in enum)
 - purpose_bind with `"legal_basis": "verbal_agreement"` (not in enum)
 - purpose_bind with `"max_secondary_uses": 9` (above maximum)
+
+- human_gate with `"action_class": "exfiltrate"` (not in enum)
+- human_gate with `"approval_tier": "anonymous"` (not in enum)
+- human_gate with `"max_auto_approve_secs": 86401` (above maximum)
 
 ## Notes
 
