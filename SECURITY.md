@@ -23,7 +23,7 @@ When used correctly, a verifier learns that a private witness satisfies a **publ
 
 ## Policy Fixtures
 
-Reusable MCP/tool policies (including `data_residency` and `purpose_bind`) live under [`schemas/`](schemas/). Treat each fixture's fingerprint as part of your security boundary when pinning host verification.
+Reusable MCP/tool policies (including `data_residency`, `purpose_bind`, and `human_gate`) live under [`schemas/`](schemas/). Treat each fixture's fingerprint as part of your security boundary when pinning host verification.
 
 ## Reporting a Vulnerability
 
