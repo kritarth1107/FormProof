@@ -1,0 +1,17 @@
+{
+  "type": "object",
+  "properties": {
+    "action_class": {
+      "enum": ["read", "write", "delete", "export", "admin", "payment"]
+    },
+    "approval_tier": {
+      "enum": ["self", "peer", "manager", "security"]
+    },
+    "max_auto_approve_secs": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 86400
+    }
+  },
+  "required": ["action_class", "approval_tier"]
+}
