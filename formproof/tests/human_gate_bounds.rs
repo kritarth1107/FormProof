@@ -45,7 +45,10 @@ fn accepts_maximum_auto_approve_secs() {
 
     let proof = Proof::create(&compiled, &witness).expect("Proof generation failed");
     let result = verify(&compiled, &proof).expect("Verification failed");
-    assert!(result, "Expected max_auto_approve_secs=86400 to be accepted");
+    assert!(
+        result,
+        "Expected max_auto_approve_secs=86400 to be accepted"
+    );
 }
 
 #[test]
@@ -119,10 +122,7 @@ fn accepts_typical_human_gate_request() {
 
     let proof = Proof::create(&compiled, &witness).expect("Proof generation failed");
     let result = verify(&compiled, &proof).expect("Verification failed");
-    assert!(
-        result,
-        "Expected typical human_gate request to be accepted"
-    );
+    assert!(result, "Expected typical human_gate request to be accepted");
 }
 
 #[test]
@@ -182,10 +182,7 @@ fn rejects_invalid_action_class() {
 
     if let Ok(Ok(proof)) = result {
         let verified = verify(&compiled, &proof).unwrap_or(false);
-        assert!(
-            !verified,
-            "Expected action_class=exfiltrate to be rejected"
-        );
+        assert!(!verified, "Expected action_class=exfiltrate to be rejected");
     }
 }
 
@@ -206,9 +203,6 @@ fn rejects_invalid_approval_tier() {
 
     if let Ok(Ok(proof)) = result {
         let verified = verify(&compiled, &proof).unwrap_or(false);
-        assert!(
-            !verified,
-            "Expected approval_tier=anonymous to be rejected"
-        );
+        assert!(!verified, "Expected approval_tier=anonymous to be rejected");
     }
 }
