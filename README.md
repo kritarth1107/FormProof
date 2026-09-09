@@ -132,6 +132,7 @@ This is an early version with intentionally limited scope.
 - [docs/HUMAN_GATE.md](docs/HUMAN_GATE.md) — Human-in-the-loop approval policy guide
 - [docs/WASM.md](docs/WASM.md) — WebAssembly verification path and caveats
 - [docs/RELEASE.md](docs/RELEASE.md) — Release preparation checklist
+- [docs/V0_1_0.md](docs/V0_1_0.md) — v0.1.0 release notes
 - [SECURITY.md](SECURITY.md) — Supported versions and vulnerability reporting
 
 ### Supported
@@ -230,7 +231,8 @@ docs/
 ├── HUMAN_GATE.md         # Human-in-the-loop approval policy
 ├── PROOF_PACKAGE.md      # Portable proof package format
 ├── WASM.md               # WebAssembly verification notes
-└── RELEASE.md            # Release preparation checklist
+├── RELEASE.md            # Release preparation checklist
+└── V0_1_0.md             # v0.1.0 release notes
 ```
 
 ## Testing
