@@ -490,6 +490,51 @@ fn bench_verify_purpose_bind(c: &mut Criterion) {
     });
 }
 
+fn human_gate_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "action_class": { "enum": ["read", "write", "delete", "export", "admin", "payment"] },
+            "approval_tier": { "enum": ["self", "peer", "manager", "security"] },
+            "max_auto_approve_secs": { "type": "integer", "minimum": 0, "maximum": 86400 }
+        },
+        "required": ["action_class", "approval_tier"]
+    }"#,
+    )
+    .unwrap()
+}
+
+fn bench_prove_human_gate(c: &mut Criterion) {
+    let schema = human_gate_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("action_class", "payment");
+    witness.set_enum("approval_tier", "manager");
+    witness.set_u64("max_auto_approve_secs", 300);
+
+    c.bench_function("prove_human_gate", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_human_gate(c: &mut Criterion) {
+    let schema = human_gate_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("action_class", "payment");
+    witness.set_enum("approval_tier", "manager");
+    witness.set_u64("max_auto_approve_secs", 300);
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_human_gate", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
 criterion_group!(
     benches,
     bench_prove_refund,
@@ -514,6 +559,8 @@ criterion_group!(
     bench_verify_data_residency,
     bench_prove_purpose_bind,
     bench_verify_purpose_bind,
+    bench_prove_human_gate,
+    bench_verify_human_gate,
 );
 
 criterion_main!(benches);
