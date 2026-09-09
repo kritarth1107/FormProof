@@ -7,101 +7,100 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
+## [0.1.0] - 2026-09-09
 
-- `schemas/human_gate.json`: MCP human-in-the-loop approval policy with action_class enum (6 values), approval_tier enum (4 values), optional max_auto_approve_secs (0–86400)
-- `formproof/tests/human_gate_bounds.rs` for action_class/approval_tier boundary validation
-- `formproof/examples/human_gate_demo.rs` demonstrating human_gate prove/verify workflow
-- `docs/HUMAN_GATE.md` host policy guide for human-in-the-loop approval proofs
-- HOST_INTEGRATION + THREAT_MODEL + SECURITY notes for human_gate hosts
-- `schemas/purpose_bind.json`: MCP purpose-limitation policy with purpose enum (6 values), legal_basis enum (4 values), optional max_secondary_uses (0–8)
-- `formproof/tests/purpose_bind_bounds.rs` for purpose/legal_basis boundary validation
-- `formproof/examples/purpose_bind_demo.rs` demonstrating purpose_bind prove/verify workflow
-- `docs/PURPOSE_BIND.md` host policy guide for purpose-limitation proofs
-- HOST_INTEGRATION + THREAT_MODEL + SECURITY notes for purpose_bind hosts
-- `schemas/data_residency.json`: MCP data-residency policy with region enum (8 regions), storage_class, retention_days (1–3650), optional cross_border
-- `formproof/tests/data_residency_bounds.rs` for residency boundary validation
-- `formproof/examples/data_residency_demo.rs` demonstrating residency prove/verify workflow
-- `docs/DATA_RESIDENCY.md` host policy guide for placement and retention proofs
-- HOST_INTEGRATION + THREAT_MODEL + SECURITY notes for data residency hosts
-- CLI end-to-end test suite (`formproof-cli/tests/cli_e2e.rs`) exercising all CLI commands
-  - Tests for `info`, `compile`, `prove`, `verify`, `package-build`, `package-verify`
-  - Validates complete prove/verify workflows against real schemas
-  - Tests error handling for invalid inputs and wrong commitments
-- CI: `cli-e2e` job running CLI end-to-end tests against release binary
-- Re-export schema limit constants (`MAX_PROPERTIES`, `MAX_ENUM_VARIANTS`, `MAX_STRING_LENGTH`) in public API
-- `formproof/examples/rate_limit_demo.rs` demonstrating rate-limit policy prove/verify workflow
-- `formproof/examples/tool_allowlist_demo.rs` demonstrating tool allowlist policy prove/verify workflow
-- `formproof/examples/age_gate_demo.rs` demonstrating age gate policy prove/verify workflow
-- CI: `examples-smoke` job running all formproof examples to catch regressions
-- `schemas/model_route.json`: MCP model-routing policy with model_id enum (8 models), max_tokens (1–128000), priority, optional temperature_class
-- `formproof/tests/model_route_bounds.rs` for model routing boundary validation
-- `formproof/examples/quota_budget_demo.rs` demonstrating quota/budget prove/verify workflow
-- `formproof/examples/model_route_demo.rs` demonstrating model routing prove/verify workflow
-- Criterion benches for `quota_budget` and `model_route` prove/verify
-- CI: `schema-parse` job verifying all schemas compile (not just valid JSON)
-- CI: `security-audit` job using rustsec/audit-check for dependency vulnerabilities
-- `docs/RELEASE.md`: detailed v0.1.0 pre-release checklist
+Initial public release of FormProof.
 
-### Previously Added
+### Core Library
 
-- `schemas/quota_budget.json`: MCP quota/budget policy with budget_units, period, optional soft_cap
-- `formproof/tests/access_country_bounds.rs` for country/tier boundary validation
-- `formproof/tests/quota_budget_bounds.rs` for budget units and period validation
-- `formproof/examples/session_ttl_demo.rs` demonstrating session TTL prove/verify workflow
-- Criterion benches for `age_gate` and `tool_allowlist` prove/verify
-- `formproof/tests/session_ttl_bounds.rs` for session TTL boundary validation
-- `formproof/tests/age_gate_bounds.rs` for age gate boundary validation
-- Criterion benches for `rate_limit` and `session_ttl` prove/verify
+- **Schema parsing**: JSON Schema v0 subset (objects ≤8 props, integer/enum/string/bytes32)
+- **Circuit compilation**: Schema → Groth16 (BN254) R1CS circuit
+- **Proving**: Generate zkSNARK proofs from private witness data
+- **Verification**: Verify proofs against public commitment
 - **Portable proof packages**: `ProofPackage` bundles proof + commitment + schema fingerprint
   - JSON serialization for easy transport between hosts
   - Schema fingerprint (SHA-256) for verifier schema binding
   - `Proof::to_package()` convenience method
-  - `docs/PROOF_PACKAGE.md` documenting format, usage, and threat notes
-- **CLI package commands**: `package-build` and `package-verify`
-  - Build portable packages from witness files
-  - Verify packages with fingerprint and proof validation
-  - `--compact` flag for minified JSON output
-  - `info` command now shows schema fingerprint
-- **New MCP policy schemas**:
-  - `schemas/rate_limit.json`: requests_per_window, window_secs, tier
-  - `schemas/tool_allowlist.json`: tool_name enum, max_args, scope
-- `examples/proof_package_demo.rs` demonstrating package workflow
-- `formproof/tests/package_roundtrip.rs` for package create/verify tests
-- `formproof/tests/policy_bounds.rs` for rate_limit and tool_allowlist bounds
-- Property-based tests using proptest for schema parser and circuit validation
-- Fuzz-like integration tests for schema parser edge cases
-- `docs/FUZZING.md` documenting property testing and fuzzing approach
-- `docs/WASM.md` documenting WebAssembly verification path and current limitations
-- `docs/HOST_INTEGRATION.md` for MCP/tool host verify-only integration
-- `docs/RELEASE.md` with release preparation checklist
-- `examples/verify_only.rs` demonstrating host-side verify-only workflow
-- `schemas/` fixtures: `refund.json`, `age_gate.json`, `access_country.json`, `spend_cap.json`
-- `formproof/tests/schema_fixtures.rs` validating all schema fixtures parse and compile
-- CI job to validate `schemas/*.json` syntax with jq
-- `SECURITY.md` with supported versions and private disclosure contact
-- `examples/spend_cap_demo.rs` demonstrating spend_cap policy verification
-- `schemas/session_ttl.json` fixture for session TTL with tier policy
-- `formproof/tests/spend_cap_bounds.rs` for boundary constraint validation
+- Re-export schema limit constants (`MAX_PROPERTIES`, `MAX_ENUM_VARIANTS`, `MAX_STRING_LENGTH`) in public API
 
-### Changed
+### CLI
 
-- Expanded test coverage with random valid/invalid schema generation
+- `formproof compile` — compile schema to proving/verifying keys
+- `formproof prove` — generate proof from witness
+- `formproof verify` — verify proof against commitment
+- `formproof info` — show schema constraints and fingerprint
+- `formproof package-build` — build portable proof package
+- `formproof package-verify` — verify package with fingerprint validation
+- `--compact` flag for minified JSON output
 
-## [0.1.0] - 2026-09-03
+### MCP Policy Schemas
 
-### Added
+Ready-to-use policy schemas in `schemas/`:
 
-- Initial release of FormProof
-- **Schema parsing**: JSON Schema v0 subset (objects ≤8 props, integer/enum/string/bytes32)
-- **Circuit compilation**: Schema to Groth16 (BN254) R1CS circuit
-- **Proving**: Generate zkSNARK proofs from private witness data
-- **Verification**: Verify proofs against public commitment
-- **CLI**: `formproof compile`, `prove`, `verify`, `info` commands
-- **Documentation**: README with examples, `docs/SCHEMA_V0.md` specification
-- **Tests**: 32 tests including 3 golden proofs and rejection corpus
-- **Benchmarks**: Criterion benchmarks for prove/verify times
-- **Example**: MCP tool host integration example
+- `refund.json` — refund amount ≤$50, valid currency
+- `age_gate.json` — age ≥18 with region
+- `access_country.json` — country allowlist + tier
+- `spend_cap.json` — spend limit ≤$100, multi-currency
+- `session_ttl.json` — session TTL with tier
+- `rate_limit.json` — requests_per_window, window_secs, tier
+- `tool_allowlist.json` — tool_name enum, max_args, scope
+- `quota_budget.json` — budget_units, period, soft_cap
+- `model_route.json` — model_id, max_tokens, priority, temperature_class
+- `data_residency.json` — region, storage_class, retention_days, cross_border
+- `purpose_bind.json` — purpose, legal_basis, max_secondary_uses
+- `human_gate.json` — action_class, approval_tier, max_auto_approve_secs
+
+### Documentation
+
+- `docs/SCHEMA_V0.md` — Frozen schema specification
+- `docs/THREAT_MODEL.md` — Security model and trust assumptions
+- `docs/HOST_INTEGRATION.md` — MCP/tool host verify-only integration
+- `docs/PROOF_PACKAGE.md` — Portable proof package format
+- `docs/DATA_RESIDENCY.md` — Data residency / retention policy guide
+- `docs/PURPOSE_BIND.md` — Purpose limitation / legal basis policy guide
+- `docs/HUMAN_GATE.md` — Human-in-the-loop approval policy guide
+- `docs/WASM.md` — WebAssembly verification path and caveats
+- `docs/FUZZING.md` — Property testing and fuzzing approach
+- `docs/RELEASE.md` — Release preparation checklist
+- `SECURITY.md` — Supported versions and vulnerability reporting
+
+### Examples
+
+- `mcp_tool_host.rs` — MCP integration example
+- `verify_only.rs` — Host-side verify-only workflow
+- `proof_package_demo.rs` — Proof package workflow
+- `spend_cap_demo.rs`, `session_ttl_demo.rs`, `quota_budget_demo.rs`
+- `model_route_demo.rs`, `rate_limit_demo.rs`, `tool_allowlist_demo.rs`
+- `age_gate_demo.rs`, `data_residency_demo.rs`, `purpose_bind_demo.rs`
+- `human_gate_demo.rs` — Human-in-the-loop approval demonstration
+
+### Testing
+
+- Golden proof tests (3 schemas)
+- Property-based tests using proptest
+- Fuzz-like integration tests for schema parser
+- Boundary tests for all 12 policy schemas
+- CLI end-to-end tests for all commands
+- Schema fixture validation tests
+
+### Benchmarks
+
+Criterion benchmarks for all 13 policy schemas:
+- Core: refund, user, token
+- MCP: rate_limit, session_ttl, age_gate, tool_allowlist, quota_budget,
+  model_route, data_residency, purpose_bind, human_gate
+
+### CI
+
+- Format check (`cargo fmt --check`)
+- Clippy lint (`cargo clippy --all-targets -- -D warnings`)
+- Test suite (`cargo test --all-features`)
+- Documentation build with warnings
+- Schema JSON syntax validation
+- Schema parsing validation
+- Security audit (cargo-audit)
+- Examples smoke test
+- CLI end-to-end tests
 
 ### Supported Schema Types
 
@@ -122,3 +121,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No regex patterns
 - Schema is public (only payload is private)
 - No `$ref` or schema composition
+- WASM browser verification not yet validated (deferred)
+- Manual MCP host integration testing deferred
