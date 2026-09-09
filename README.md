@@ -96,7 +96,7 @@ formproof package-verify --schema schemas/refund.json \
 
 See [docs/PROOF_PACKAGE.md](docs/PROOF_PACKAGE.md) for format details.
 
-Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`, `rate_limit`, `tool_allowlist`, `quota_budget`, `model_route`, `data_residency`, `purpose_bind`).
+Ready-made policies live in [`schemas/`](schemas/) (`refund`, `age_gate`, `access_country`, `spend_cap`, `session_ttl`, `rate_limit`, `tool_allowlist`, `quota_budget`, `model_route`, `data_residency`, `purpose_bind`, `human_gate`).
 
 ### Example Files
 
@@ -129,6 +129,7 @@ This is an early version with intentionally limited scope.
 - [docs/HOST_INTEGRATION.md](docs/HOST_INTEGRATION.md) — MCP/tool host verify-only integration
 - [docs/DATA_RESIDENCY.md](docs/DATA_RESIDENCY.md) — Data residency / retention policy guide
 - [docs/PURPOSE_BIND.md](docs/PURPOSE_BIND.md) — Purpose limitation / legal basis policy guide
+- [docs/HUMAN_GATE.md](docs/HUMAN_GATE.md) — Human-in-the-loop approval policy guide
 - [docs/WASM.md](docs/WASM.md) — WebAssembly verification path and caveats
 - [docs/RELEASE.md](docs/RELEASE.md) — Release preparation checklist
 - [SECURITY.md](SECURITY.md) — Supported versions and vulnerability reporting
@@ -198,7 +199,8 @@ formproof/           # Core library
 │   ├── tool_allowlist_demo.rs  # Tool allowlist policy demonstration
 │   ├── age_gate_demo.rs        # Age gate policy demonstration
 │   ├── data_residency_demo.rs  # Data residency policy demonstration
-│   └── purpose_bind_demo.rs    # Purpose limitation policy demonstration
+│   ├── purpose_bind_demo.rs    # Purpose limitation policy demonstration
+│   └── human_gate_demo.rs      # Human-in-the-loop approval demonstration
 └── tests/
     └── golden.rs    # Golden proofs + rejection corpus
 
@@ -216,7 +218,8 @@ schemas/             # Reusable v0 policy fixtures
 ├── quota_budget.json    # MCP quota/budget policy
 ├── model_route.json     # MCP model-routing policy
 ├── data_residency.json  # MCP data-residency policy
-└── purpose_bind.json    # MCP purpose-limitation policy
+├── purpose_bind.json    # MCP purpose-limitation policy
+└── human_gate.json      # MCP human-in-the-loop approval policy
 
 docs/
 ├── SCHEMA_V0.md          # Frozen schema specification
@@ -224,6 +227,7 @@ docs/
 ├── HOST_INTEGRATION.md   # Host verify-only integration
 ├── DATA_RESIDENCY.md     # Data residency / retention policy
 ├── PURPOSE_BIND.md       # Purpose limitation / legal basis policy
+├── HUMAN_GATE.md         # Human-in-the-loop approval policy
 ├── PROOF_PACKAGE.md      # Portable proof package format
 ├── WASM.md               # WebAssembly verification notes
 └── RELEASE.md            # Release preparation checklist
@@ -264,13 +268,15 @@ See [docs/FUZZING.md](docs/FUZZING.md) for property testing and fuzzing details.
 
 ## Benchmarks
 
-Measured on the 3 golden schemas using criterion (release build):
+Criterion benchmarks cover prove/verify for all 13 policy schemas. Sample timings on golden schemas (release build):
 
 | Schema | Prove Time | Verify Time |
 |--------|------------|-------------|
 | Refund (2 props: amount, currency) | 2.35 ms | 1.13 ms |
 | User (3 props: age, country, name) | 2.28 ms | 1.15 ms |
 | Token (2 props: token_id, balance) | 5.82 ms | 1.14 ms |
+
+Additional benches: rate_limit, session_ttl, age_gate, tool_allowlist, quota_budget, model_route, data_residency, purpose_bind, human_gate.
 
 Run benchmarks yourself:
 
