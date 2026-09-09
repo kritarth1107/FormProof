@@ -397,6 +397,54 @@ fn bench_verify_model_route(c: &mut Criterion) {
     });
 }
 
+fn data_residency_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "region": { "enum": ["us-east", "us-west", "eu-west", "eu-central", "ap-south", "ap-northeast", "sa-east", "ca-central"] },
+            "storage_class": { "enum": ["hot", "warm", "cold", "archive"] },
+            "retention_days": { "type": "integer", "minimum": 1, "maximum": 3650 },
+            "cross_border": { "enum": ["forbidden", "allowed", "eu-only"] }
+        },
+        "required": ["region", "storage_class", "retention_days"]
+    }"#,
+    )
+    .unwrap()
+}
+
+fn bench_prove_data_residency(c: &mut Criterion) {
+    let schema = data_residency_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("region", "eu-west");
+    witness.set_enum("storage_class", "cold");
+    witness.set_u64("retention_days", 365);
+    witness.set_enum("cross_border", "eu-only");
+
+    c.bench_function("prove_data_residency", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_data_residency(c: &mut Criterion) {
+    let schema = data_residency_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("region", "eu-west");
+    witness.set_enum("storage_class", "cold");
+    witness.set_u64("retention_days", 365);
+    witness.set_enum("cross_border", "eu-only");
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_data_residency", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
 criterion_group!(
     benches,
     bench_prove_refund,
@@ -417,6 +465,8 @@ criterion_group!(
     bench_verify_quota_budget,
     bench_prove_model_route,
     bench_verify_model_route,
+    bench_prove_data_residency,
+    bench_verify_data_residency,
 );
 
 criterion_main!(benches);
