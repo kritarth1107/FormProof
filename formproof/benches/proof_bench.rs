@@ -445,6 +445,51 @@ fn bench_verify_data_residency(c: &mut Criterion) {
     });
 }
 
+fn purpose_bind_schema() -> FormProofSchema {
+    FormProofSchema::from_json(
+        r#"{
+        "type": "object",
+        "properties": {
+            "purpose": { "enum": ["inference", "analytics", "training", "support", "billing", "debugging"] },
+            "legal_basis": { "enum": ["consent", "contract", "legitimate_interest", "legal_obligation"] },
+            "max_secondary_uses": { "type": "integer", "minimum": 0, "maximum": 8 }
+        },
+        "required": ["purpose", "legal_basis"]
+    }"#,
+    )
+    .unwrap()
+}
+
+fn bench_prove_purpose_bind(c: &mut Criterion) {
+    let schema = purpose_bind_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("purpose", "inference");
+    witness.set_enum("legal_basis", "consent");
+    witness.set_u64("max_secondary_uses", 2);
+
+    c.bench_function("prove_purpose_bind", |b| {
+        b.iter(|| Proof::create(black_box(&compiled), black_box(&witness)).unwrap())
+    });
+}
+
+fn bench_verify_purpose_bind(c: &mut Criterion) {
+    let schema = purpose_bind_schema();
+    let compiled = CompiledSchema::compile(schema).unwrap();
+
+    let mut witness = Witness::new();
+    witness.set_enum("purpose", "inference");
+    witness.set_enum("legal_basis", "consent");
+    witness.set_u64("max_secondary_uses", 2);
+
+    let proof = Proof::create(&compiled, &witness).unwrap();
+
+    c.bench_function("verify_purpose_bind", |b| {
+        b.iter(|| verify(black_box(&compiled), black_box(&proof)).unwrap())
+    });
+}
+
 criterion_group!(
     benches,
     bench_prove_refund,
@@ -467,6 +512,8 @@ criterion_group!(
     bench_verify_model_route,
     bench_prove_data_residency,
     bench_verify_data_residency,
+    bench_prove_purpose_bind,
+    bench_verify_purpose_bind,
 );
 
 criterion_main!(benches);
