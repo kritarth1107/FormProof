@@ -14,7 +14,9 @@ Outstanding items before tagging v0.1.0:
 
 ### Benchmarks
 - [x] Criterion benches for all major schemas
-- [ ] Criterion bench for data_residency prove/verify (optional follow-up)
+- [x] Criterion bench for data_residency prove/verify
+- [x] Criterion bench for purpose_bind prove/verify
+- [x] Criterion bench for human_gate prove/verify
 - [x] Prove/verify benchmarks documented in README
 
 ### Documentation
@@ -22,14 +24,18 @@ Outstanding items before tagging v0.1.0:
 - [x] HOST_INTEGRATION.md verify-only guide
 - [x] PROOF_PACKAGE.md portable format docs
 - [x] DATA_RESIDENCY.md policy guide
-- [ ] WASM.md: verify browser build actually works (currently deferred)
+- [x] PURPOSE_BIND.md policy guide
+- [x] HUMAN_GATE.md policy guide
 - [x] API docs: ensure all public items have rustdoc comments
+
+### Deferred (Post-v0.1.0)
+- [ ] WASM.md: verify browser build actually works
+- [ ] Integration test with real MCP host (manual verification)
 
 ### Testing
 - [x] Golden proof tests
 - [x] Property-based tests (proptest)
 - [x] Boundary tests for each schema
-- [ ] Integration test with real MCP host (manual verification)
 
 ### CI
 - [x] Format, clippy, test, docs jobs
@@ -42,7 +48,8 @@ Outstanding items before tagging v0.1.0:
 ### Pre-tag verification
 - [x] Verify all examples run without errors (automated via examples-smoke CI)
 - [x] Verify CLI commands work end-to-end (automated via cli-e2e CI)
-- [ ] Review CHANGELOG for completeness
+- [x] Review CHANGELOG for completeness
+- [x] Freeze CHANGELOG into v0.1.0 section
 
 ---
 
